@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&family=Noto+Serif:ital,wght@0,300;0,400;1,300&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .chrome-gradient {
+            background: linear-gradient(135deg, #FFFFFF 0%, #A3A3A3 100%);
+        }
+
+        .chrome-border {
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        /* ── Search bar ── */
+        .search-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-input-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 4px 0;
+            width: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+        }
+
+        .search-input-wrap.open {
+            width: 220px;
+            opacity: 1;
+        }
+
+        .search-input-wrap input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-family: 'Manrope', sans-serif;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            width: 100%;
+        }
+
+        .search-input-wrap input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .search-toggle-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            align-items: center;
+            transition: color 0.2s;
+            padding: 4px;
+        }
+
+        .search-toggle-btn:hover {
+            color: #fff;
+        }
+
+        .search-clear {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.35);
+            cursor: pointer;
+            font-size: 11px;
+            padding: 0 2px;
+            flex-shrink: 0;
+            transition: color 0.2s;
+        }
+
+        .search-clear:hover {
+            color: #fff;
+        }
+
+        /* ── Category dropdown ── */
+        .filter-dropdown {
+            position: relative;
+        }
+
+        .filter-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 12px);
+            left: 0;
+            background: #0e0e0e;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-width: 180px;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-6px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .filter-dropdown-menu.open {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            cursor: pointer;
+            font-family: 'Manrope', sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.5);
+            transition: color 0.15s, background 0.15s;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .filter-option:last-child {
+            border-bottom: none;
+        }
+
+        .filter-option:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .filter-option.selected {
+            color: #fff;
+        }
+
+        .filter-option .check-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #fff;
+            opacity: 0;
+            transition: opacity 0.15s;
+            flex-shrink: 0;
+        }
+
+        .filter-option.selected .check-dot {
+            opacity: 1;
+        }
+
+        /* active filter label badge */
+        .active-cat-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 3px 10px 3px 12px;
+            font-size: 10px;
+            letter-spacing: 0.12em;
+            font-family: 'Manrope', sans-serif;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.7);
+            margin-left: 12px;
+        }
+
+        .active-cat-badge button {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            font-size: 10px;
+            line-height: 1;
+            padding: 0;
+            transition: color 0.15s;
+        }
+
+        .active-cat-badge button:hover {
+            color: #fff;
+        }
+
+        /* ── Product card ── */
+        .product-card {
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+
+        .product-card.hidden-item {
+            display: none;
+        }
+
+        /* No results */
+        #noResults {
+            display: none;
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 80px 0;
+            color: rgba(255, 255, 255, 0.25);
+            font-family: 'Noto Serif', serif;
+            font-size: 18px;
+            letter-spacing: 0.1em;
+        }
+
+        /* Sort dropdown */
+        .sort-dropdown {
+            position: relative;
+        }
+
+        .sort-menu {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            background: #0e0e0e;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-width: 200px;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-6px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .sort-menu.open {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .sort-option {
+            padding: 12px 16px;
+            cursor: pointer;
+            font-family: 'Manrope', sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.5);
+            transition: color 0.15s, background 0.15s;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sort-option:last-child {
+            border-bottom: none;
+        }
+
+        .sort-option:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .sort-option.selected {
+            color: #fff;
+        }
+
+        .sort-option .check-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #fff;
+            opacity: 0;
+            transition: opacity .15s;
+            flex-shrink: 0;
+        }
+
+        .sort-option.selected .check-dot {
+            opacity: 1;
+        }
+
+        /* result count */
+        .result-count {
+            font-family: 'Manrope', sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        /* search highlight */
+        mark {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            padding: 0 2px;
+        }
+    </style>
+</head>
+
+<body class="bg-[#0a0a0a] text-[#e5e2e1] font-[Manrope]" style="background:#0a0a0a;">
+
+    <!-- ══════════════════════════════
+     TOP NAV BAR
+══════════════════════════════ -->
+    <nav
+        class="fixed top-0 w-full z-50 flex justify-between items-center px-16 h-20 bg-black/90 backdrop-blur-md border-b border-zinc-800">
+
+        <!-- Logo -->
+        <a href="home.html">
+            <div class="text-2xl font-light tracking-[0.2em] text-white uppercase"
+                style="font-family:'Noto Serif',serif;">AURELIA</div>
+        </a>
+
+        <!-- Nav links -->
+        <div class="hidden md:flex items-center gap-12">
+            <a class="uppercase text-xs tracking-widest text-zinc-500 hover:text-zinc-200 transition-colors"
+                style="font-family:'Manrope',sans-serif;" href="collection.html">Collection</a>
+            <a class="uppercase text-xs tracking-widest text-zinc-500 hover:text-zinc-200 transition-colors"
+                style="font-family:'Manrope',sans-serif;" href="accessories.html">Accessories</a>
+            <a class="uppercase text-xs tracking-widest text-zinc-500 hover:text-zinc-200 transition-colors"
+                style="font-family:'Manrope',sans-serif;" href="about.html">About</a>
+            <a class="uppercase text-xs tracking-widest text-white border-b border-white pb-1"
+                style="font-family:'Manrope',sans-serif;" href="#">Contact</a>
+        </div>
+
+        <!-- Right actions: search + icons -->
+        <div class="flex items-center gap-6">
+
+            <!-- ── Search bar ── -->
+            <div class="search-container" id="searchContainer">
+                <div class="search-input-wrap" id="searchInputWrap">
+                    <!-- inline search icon -->
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" style="flex-shrink:0;">
+                        <circle cx="11" cy="11" r="7" />
+                        <line x1="17" y1="17" x2="22" y2="22" />
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="Search collection…" autocomplete="off" />
+                    <button class="search-clear" id="searchClear" title="Clear">✕</button>
+                </div>
+                <!-- search toggle icon button -->
+                <button class="search-toggle-btn" id="searchToggle" title="Search">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="7" />
+                        <line x1="17" y1="17" x2="22" y2="22" />
+                    </svg>
+                </button>
+            </div>
+            <a href="shopping-bag.html">
+                <button class="text-zinc-300 hover:text-white transition-colors active:scale-95">
+                    <span class="material-symbols-outlined">shopping_bag</span>
+                </button>
+            </a>
+            <button class="text-zinc-300 hover:text-white transition-colors active:scale-95">
+                <span class="material-symbols-outlined">person</span>
+            </button>
+        </div>
+    </nav>
+    <main class="pt-40">
+        <!-- Section 1: Header -->
+        <section class="px-margin-edge mb-section-gap max-w-container-max mx-auto">
+            <div class="flex flex-col gap-4 border-l border-white/20 pl-8">
+                <span class="text-label-sm font-label-sm uppercase tracking-[0.4em] text-zinc-500">Contact</span>
+                <h1 class="text-display-xl font-display-xl chrome-text uppercase">CLIENT RELATIONS</h1>
+                <p class="text-body-lg font-body-lg text-zinc-400 max-w-2xl">
+                    Experience a standard of service as meticulously crafted as our collections. Our dedicated concierge
+                    team is available to assist with private acquisitions, bespoke tailoring, and global boutique
+                    inquiries.
+                </p>
+            </div>
+        </section>
+        <!-- Section 2 & 3: Two-column Form and Info -->
+        <section class="px-margin-edge mb-section-gap max-w-container-max mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+                <!-- Contact Form -->
+                <div class="md:col-span-7 pr-12">
+                    <form class="flex flex-col gap-12">
+                        <div class="flex flex-col gap-2 group">
+                            <label
+                                class="text-label-sm font-label-sm uppercase text-zinc-500 group-focus-within:text-white transition-colors">Full
+                                Name</label>
+                            <input
+                                class="bg-transparent border-t-0 border-x-0 border-b border-zinc-800 focus:border-white focus:ring-0 text-white py-4 px-0 transition-all placeholder:text-zinc-700 font-body-md"
+                                placeholder="Enter your name" type="text" />
+                        </div>
+                        <div class="flex flex-col gap-2 group">
+                            <label
+                                class="text-label-sm font-label-sm uppercase text-zinc-500 group-focus-within:text-white transition-colors">Email
+                                Address</label>
+                            <input
+                                class="bg-transparent border-t-0 border-x-0 border-b border-zinc-800 focus:border-white focus:ring-0 text-white py-4 px-0 transition-all placeholder:text-zinc-700 font-body-md"
+                                placeholder="Email@domain.com" type="email" />
+                        </div>
+                        <div class="flex flex-col gap-2 group">
+                            <label
+                                class="text-label-sm font-label-sm uppercase text-zinc-500 group-focus-within:text-white transition-colors">Subject</label>
+                            <select
+                                class="bg-transparent border-t-0 border-x-0 border-b border-zinc-800 focus:border-white focus:ring-0 text-white py-4 px-0 transition-all font-body-md appearance-none">
+                                <option class="bg-black">General Inquiry</option>
+                                <option class="bg-black">Bespoke Appointment</option>
+                                <option class="bg-black">Press &amp; Media</option>
+                                <option class="bg-black">Corporate Relations</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-2 group">
+                            <label
+                                class="text-label-sm font-label-sm uppercase text-zinc-500 group-focus-within:text-white transition-colors">Message</label>
+                            <textarea
+                                class="bg-transparent border-t-0 border-x-0 border-b border-zinc-800 focus:border-white focus:ring-0 text-white py-4 px-0 transition-all placeholder:text-zinc-700 font-body-md resize-none"
+                                placeholder="Describe your request" rows="4"></textarea>
+                        </div>
+                        <button
+                            class="w-fit px-12 py-5 bg-gradient-to-b from-white to-zinc-400 text-black text-label-sm font-label-sm uppercase tracking-widest hover:opacity-90 transition-opacity">
+                            Send Transmission
+                        </button>
+                    </form>
+                </div>
+                <!-- Global Boutiques & Corporate -->
+                <div class="md:col-span-5 flex flex-col gap-16 border-l border-zinc-900 pl-12">
+                    <div class="flex flex-col gap-8">
+                        <h3 class="text-label-sm font-label-sm uppercase tracking-[0.25em] text-zinc-100">Global
+                            Boutiques</h3>
+                        <div class="flex flex-col gap-12">
+                            <div class="group">
+                                <h4 class="text-body-md font-semibold text-white mb-2">LONDON</h4>
+                                <p class="text-zinc-500 text-body-md leading-relaxed">
+                                    12 New Bond Street, Mayfair<br />
+                                    London W1S 3SP, UK<br />
+                                    +44 (0) 20 7493 0000
+                                </p>
+                            </div>
+                            <div class="group">
+                                <h4 class="text-body-md font-semibold text-white mb-2">PARIS</h4>
+                                <p class="text-zinc-500 text-body-md leading-relaxed">
+                                    30 Avenue Montaigne<br />
+                                    75008 Paris, France<br />
+                                    +33 (0) 1 40 70 00 00
+                                </p>
+                            </div>
+                            <div class="group">
+                                <h4 class="text-body-md font-semibold text-white mb-2">NEW YORK</h4>
+                                <p class="text-zinc-500 text-body-md leading-relaxed">
+                                    712 Fifth Avenue<br />
+                                    New York, NY 10019, USA<br />
+                                    +1 212 582 0000
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-4 border-t border-zinc-900 pt-8">
+                        <h3 class="text-label-sm font-label-sm uppercase tracking-[0.25em] text-zinc-100">Corporate
+                            Inquiries</h3>
+                        <p class="text-zinc-500 text-body-md">
+                            press@sterling-avantgarde.com<br />
+                            careers@sterling-avantgarde.com
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Section 4: Architectural Map Visual -->
+        <section class="w-full h-[600px] relative overflow-hidden bg-zinc-900">
+            <img alt="Architectural abstraction"
+                class="w-full h-full object-cover grayscale opacity-40 mix-blend-luminosity"
+                data-alt="A cinematic, low-angle shot of a brutalist concrete skyscraper reaching into a dark, moody sky. The architecture is characterized by sharp angles, deep shadows, and a monochromatic silver and black color palette. The lighting is dramatic and high-contrast, emphasizing the cold, industrial precision of the building's metallic and stone surfaces. The overall atmosphere is exclusive, silent, and technologically advanced, perfectly reflecting the Sterling Avant-Garde aesthetic."
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYI5uo1ArWUqYCOhEwHj3NuJXQCuxW8PTyMzzkjZiyri_r60249VejhR2Eg813HVZ3wtliC0JDDiHQ12sCUkdFFYJ1ifCVjCXkjI9QZEEDo-_5CY-Ocm5jv-t3gLeYBOClTn5XK3afUjUGQAa1knEh5Y9fGKUioaUEmeBNWjSQkWUgfH5Fqv_-le6bGU2kiztJWNkeLYI1l3BU-zzQdWlksadK34h_0FQ79DzKmSnz5YEaddrFl8UgRo26T0psT7EoOO6Sgc7w-rU" />
+            <div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background"></div>
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div class="border border-white/10 p-12 backdrop-blur-sm bg-black/20">
+                    <div class="flex flex-col items-center gap-6">
+                        <span class="material-symbols-outlined text-4xl text-white/50"
+                            data-icon="location_on">location_on</span>
+                        <div class="text-center">
+                            <h2 class="text-headline-md font-headline-md text-white uppercase tracking-widest mb-2">
+                                Flagship Location</h2>
+                            <p class="text-label-sm text-zinc-400 uppercase tracking-widest">Mayfair, London</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- Footer -->
+    <footer
+        class="w-full py-12 px-16 flex flex-col md:flex-row justify-between items-center gap-8 bg-black border-t border-zinc-900">
+        <div class="text-lg font-light tracking-[0.3em] text-zinc-200" style="font-family:'Noto Serif',serif;">AURELIA
+        </div>
+        <div class="flex flex-wrap justify-center gap-8">
+            <a class="text-[10px] tracking-widest uppercase text-zinc-600 hover:text-zinc-300 transition-colors"
+                href="#">Privacy Policy</a>
+            <a class="text-[10px] tracking-widest uppercase text-zinc-600 hover:text-zinc-300 transition-colors"
+                href="#">Terms of Service</a>
+            <a class="text-[10px] tracking-widest uppercase text-zinc-600 hover:text-zinc-300 transition-colors"
+                href="#">Shipping &amp; Returns</a>
+            <a class="text-[10px] tracking-widest uppercase text-zinc-600 hover:text-zinc-300 transition-colors"
+                href="#">Sustainability</a>
+            <a class="text-[10px] tracking-widest uppercase text-zinc-600 hover:text-zinc-300 transition-colors"
+                href="#">Contact</a>
+        </div>
+        <div class="text-[10px] tracking-widest uppercase text-zinc-500">© 2026 AURELIA ATELIER. ALL RIGHTS RESERVED.
+        </div>
+    </footer>
+
+
+
+
+    <script src="Javascript/main.js"></script>
+</body>
+
+</html>

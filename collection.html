@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&family=Noto+Serif:ital,wght@0,300;0,400;1,300&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .chrome-gradient {
+            background: linear-gradient(135deg, #FFFFFF 0%, #A3A3A3 100%);
+        }
+
+        .chrome-border {
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        /* ── Search bar ── */
+        .search-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-input-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 4px 0;
+            width: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+        }
+
+        .search-input-wrap.open {
+            width: 220px;
+            opacity: 1;
+        }
+
+        .search-input-wrap input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-family: 'Manrope', sans-serif;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            width: 100%;
+        }
+
+        .search-input-wrap input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .search-toggle-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            align-items: center;
+            transition: color 0.2s;
+            padding: 4px;
+        }
+
+        .search-toggle-btn:hover {
+            color: #fff;
+        }
+
+        .search-clear {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.35);
+            cursor: pointer;
+            font-size: 11px;
+            padding: 0 2px;
+            flex-shrink: 0;
+            transition: color 0.2s;
+        }
+
+        .search-clear:hover {
+            color: #fff;
+        }
+
+        /* ── Category dropdown ── */
+        .filter-dropdown {
+            position: relative;
+        }
+
+        .filter-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 12px);
+            left: 0;
+            background: #0e0e0e;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-width: 180px;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-6px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .filter-dropdown-menu.open {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            cursor: pointer;
+            font-family: 'Manrope', sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.5);
+            transition: color 0.15s, background 0.15s;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .filter-option:last-child {
+            border-bottom: none;
+        }
+
+        .filter-option:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .filter-option.selected {
+            color: #fff;
+        }
+
+        .filter-option .check-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #fff;
+            opacity: 0;
+            transition: opacity 0.15s;
+            flex-shrink: 0;
+        }
+
+        .filter-option.selected .check-dot {
+            opacity: 1;
+        }
+
+        /* active filter label badge */
+        .active-cat-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 3px 10px 3px 12px;
+            font-size: 10px;
+            letter-spacing: 0.12em;
+            font-family: 'Manrope', sans-serif;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.7);
+            margin-left: 12px;
+        }
+
+        .active-cat-badge button {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            font-size: 10px;
+            line-height: 1;
+            padding: 0;
+            transition: color 0.15s;
+        }
+
+        .active-cat-badge button:hover {
+            color: #fff;
+        }
+
+        /* ── Product card ── */
+        .product-card {
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+
+        .product-card.hidden-item {
+            display: none;
+        }
+
+        /* No results */
+        #noResults {
+            display: none;
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 80px 0;
+            color: rgba(255, 255, 255, 0.25);
+            font-family: 'Noto Serif', serif;
+            font-size: 18px;
+            letter-spacing: 0.1em;
+        }
+
+        /* Sort dropdown */
+        .sort-dropdown {
+            position: relative;
+        }
+
+        .sort-menu {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            background: #0e0e0e;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-width: 200px;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-6px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .sort-menu.open {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .sort-option {
+            padding: 12px 16px;
+            cursor: pointer;
+            font-family: 'Manrope', sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.5);
+            transition: color 0.15s, background 0.15s;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sort-option:last-child {
+            border-bottom: none;
+        }
+
+        .sort-option:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .sort-option.selected {
+            color: #fff;
+        }
+
+        .sort-option .check-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #fff;
+            opacity: 0;
+            transition: opacity .15s;
+            flex-shrink: 0;
+        }
+
+        .sort-option.selected .check-dot {
+            opacity: 1;
+        }
+
+        /* result count */
+        .result-count {
+            font-family: 'Manrope', sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        /* search highlight */
+        mark {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            padding: 0 2px;
+        }
+    </style>
+</head>
+
+<body class="bg-[#0a0a0a] text-[#e5e2e1] font-[Manrope]" style="background:#0a0a0a;">
+
+    <!-- ══════════════════════════════
+     TOP NAV BAR
+══════════════════════════════ -->
+    <nav
+        class="fixed top-0 w-full z-50 flex justify-between items-center px-16 h-20 bg-black/90 backdrop-blur-md border-b border-zinc-800">
+
+        <!-- Logo -->
+        <a href="home.html">
+            <div class="text-2xl font-light tracking-[0.2em] text-white uppercase"
+                style="font-family:'Noto Serif',serif;">AURELIA</div>
+        </a>
+
+        <!-- Nav links -->
+        <div class="hidden md:flex items-center gap-12">
+            <a class="uppercase text-xs tracking-widest text-white border-b border-white pb-1"
+                style="font-family:'Manrope',sans-serif;" href="#">Collections</a>
+            <a class="uppercase text-xs tracking-widest text-zinc-500 hover:text-zinc-200 transition-colors"
+                style="font-family:'Manrope',sans-serif;" href="accessories.html">Accessories</a>
+            <a class="uppercase text-xs tracking-widest text-zinc-500 hover:text-zinc-200 transition-colors"
+                style="font-family:'Manrope',sans-serif;" href="about.html">About</a>
+            <a class="uppercase text-xs tracking-widest text-zinc-500 hover:text-zinc-200 transition-colors"
+                style="font-family:'Manrope',sans-serif;" href="contact.html">Contact</a>
+        </div>
+
+        <!-- Right actions: search + icons -->
+        <div class="flex items-center gap-6">
+
+            <!-- ── Search bar ── -->
+            <div class="search-container" id="searchContainer">
+                <div class="search-input-wrap" id="searchInputWrap">
+                    <!-- inline search icon -->
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" style="flex-shrink:0;">
+                        <circle cx="11" cy="11" r="7" />
+                        <line x1="17" y1="17" x2="22" y2="22" />
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="Search collection…" autocomplete="off" />
+                    <button class="search-clear" id="searchClear" title="Clear">✕</button>
+                </div>
+                <!-- search toggle icon button -->
+                <button class="search-toggle-btn" id="searchToggle" title="Search">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="7" />
+                        <line x1="17" y1="17" x2="22" y2="22" />
+                    </svg>
+                </button>
+            </div>
+            <a href="shopping-bag.html">
+                <button class="text-zinc-300 hover:text-white transition-colors active:scale-95">
+                    <span class="material-symbols-outlined">shopping_bag</span>
+                </button>
+            </a>
+            <button class="text-zinc-300 hover:text-white transition-colors active:scale-95">
+                <span class="material-symbols-outlined">person</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ══════════════════════════════
+     MAIN CONTENT
+══════════════════════════════ -->
+    <main class="pt-32 pb-32 px-16 max-w-[1440px] mx-auto">
+
+        <!-- Header -->
+        <header class="mb-20">
+            <h1 class="text-white mb-4 font-light"
+                style="font-family:'Noto Serif',serif;font-size:clamp(2.5rem,6vw,4.5rem);letter-spacing:-0.01em;">Brand
+                Collection</h1>
+            <p class="text-zinc-400 max-w-2xl" style="font-size:18px;line-height:28px;">
+                Explore our curated selection of high-precision tailoring and technical knitwear.
+            </p>
+        </header>
+
+        <!-- ── Filter Bar ── -->
+        <section class="flex flex-col md:flex-row justify-between items-end border-b border-zinc-800 pb-8 mb-6 gap-8">
+            <div class="flex items-end gap-16">
+
+                <!-- Category filter dropdown -->
+                <div class="filter-dropdown" id="catDropdown">
+                    <span class="block mb-2 text-zinc-500 uppercase"
+                        style="font-size:11px;letter-spacing:0.12em;">Category</span>
+                    <button id="catBtn" class="flex items-center gap-2 text-white uppercase tracking-widest"
+                        style="font-size:13px;background:none;border:none;cursor:pointer;font-family:'Manrope',sans-serif;">
+                        <span id="catLabel">All Items</span>
+                        <span class="material-symbols-outlined" style="font-size:16px;transition:transform 0.2s;"
+                            id="catChevron">expand_more</span>
+                    </button>
+                    <div class="filter-dropdown-menu" id="catMenu">
+                        <div class="filter-option selected" data-value="all">
+                            <span class="check-dot"></span>All Items
+                        </div>
+                        <div class="filter-option" data-value="outerwear">
+                            <span class="check-dot"></span>Outerwear
+                        </div>
+                        <div class="filter-option" data-value="tailoring">
+                            <span class="check-dot"></span>Tailoring
+                        </div>
+                        <div class="filter-option" data-value="knitwear">
+                            <span class="check-dot"></span>Knitwear
+                        </div>
+                        <div class="filter-option" data-value="trousers">
+                            <span class="check-dot"></span>Trousers
+                        </div>
+                        <div class="filter-option" data-value="tops">
+                            <span class="check-dot"></span>Tops &amp; Shirts
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active category badge -->
+                <div class="active-cat-badge" id="activeBadge" style="display:none;">
+                    <span id="activeBadgeLabel"></span>
+                    <button id="clearCat" title="Clear filter">✕</button>
+                </div>
+            </div>
+
+            <!-- Sort dropdown -->
+            <div class="sort-dropdown" id="sortDropdown">
+                <span class="block mb-2 text-zinc-500 uppercase text-right"
+                    style="font-size:11px;letter-spacing:0.12em;">Sort By</span>
+                <button id="sortBtn" class="flex items-center gap-2 text-white uppercase tracking-widest"
+                    style="font-size:13px;background:none;border:none;cursor:pointer;font-family:'Manrope',sans-serif;">
+                    <span id="sortLabel">Newest Arrivals</span>
+                    <span class="material-symbols-outlined" style="font-size:16px;"
+                        id="sortChevron">expand_more</span>
+                </button>
+                <div class="sort-menu" id="sortMenu">
+                    <div class="sort-option selected" data-value="newest"><span class="check-dot"></span>Newest
+                        Arrivals</div>
+                    <div class="sort-option" data-value="price-asc"><span class="check-dot"></span>Price: Low to High
+                    </div>
+                    <div class="sort-option" data-value="price-desc"><span class="check-dot"></span>Price: High to
+                        Low</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Result count -->
+        <div class="mb-10 flex items-center gap-3">
+            <span class="result-count" id="resultCount">18 items</span>
+        </div>
+
+        <!-- ── Product Grid ── -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-x-8 gap-y-20" id="productGrid">
+
+            <div id="noResults"
+                style="display:none;grid-column:1/-1;text-align:center;padding:80px 0;color:rgba(255,255,255,0.2);font-family:'Noto Serif',serif;font-size:20px;letter-spacing:0.1em;">
+                No items found
+            </div>
+
+            <!-- Item 1 -->
+            <div class="product-card group" data-cat="outerwear" data-name="Monolith Overcoat" data-price="2450">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] relative chrome-border mb-6">
+                    <img class="w-full h-full object-cover grayscale brightness-90 group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlwr3Yk8fYc0hGak-weNlQzgy91IwfJP1Chb6PJt2jfwH3TMi4MYLfUHOiv3x1DhNorKU_Hd84GhKrfihLenugiFzgoH5wu2DQ5LeLKUSyT7T-fNVi2iqCrayRDvY-Fo0MY_ZfHBWE0r1tzXVkKv7kDZqlno1EpD4gXXT-JrKFwE7LFB-m_chS13UaM-aulkD61dpG8We-ZefGRgTBvJdyAGUICyteE7Mi53sLacueBZ8ByBlO1PlIW9VLLVtmflI_PAQ0gl--yaY"
+                        alt="Monolith Overcoat" />
+                    <button
+                        class="absolute bottom-6 right-6 w-12 h-12 chrome-gradient flex items-center justify-center text-black scale-0 group-hover:scale-100 transition-all duration-300 shadow-2xl">
+                        <span class="material-symbols-outlined text-xl">shopping_bag</span>
+                    </button>
+                </div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase tracking-wider" style="font-size:14px;">Monolith Overcoat</h3>
+                        <p class="text-zinc-500 uppercase mt-1" style="font-size:11px;letter-spacing:0.1em;">Sterling
+                            Wool / Silver Thread</p>
+                        <p class="text-zinc-600 mt-1"
+                            style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;">Outerwear</p>
+                    </div>
+                    <span class="text-zinc-300" style="font-size:14px;" data-price="2450">$2,450</span>
+                </div>
+            </div>
+
+            <!-- Item 2 -->
+            <div class="product-card group" data-cat="tailoring" data-name="Industrial Tailored Suit"
+                data-price="3200">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] relative chrome-border mb-6">
+                    <img class="w-full h-full object-cover grayscale brightness-90 group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbCE3ecnZUpH7Qbe64YLnyD51o_4w1kELtYApRBvJZS9YEYRMqUaRsAx1YNuG78MCv2mAznRpdV5qxtBSfyTxQySE6pSsk2ySbQ_OPLcPryFgbe8HXaGsDlY5lwtPjMOLGouIWaOd2pJn8UlPMh-0glQx1tcCDCD4GAixickfycm6ZhpsFF3l1kSzw-H9kM5KlCEqY5jvIaqmG5x-_JJPmoy5wSXzj80W0Yg5c-riMiBGJcgZXs7jsVS7l8ktDqtLMQYeYx_HCMEU"
+                        alt="Industrial Tailored Suit" />
+                    <button
+                        class="absolute bottom-6 right-6 w-12 h-12 chrome-gradient flex items-center justify-center text-black scale-0 group-hover:scale-100 transition-all duration-300 shadow-2xl">
+                        <span class="material-symbols-outlined text-xl">shopping_bag</span>
+                    </button>
+                </div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase tracking-wider" style="font-size:14px;">Industrial Tailored
+                            Suit</h3>
+                        <p class="text-zinc-500 uppercase mt-1" style="font-size:11px;letter-spacing:0.1em;">
+                            High-Twist Gabardine</p>
+                        <p class="text-zinc-600 mt-1"
+                            style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;">Tailoring</p>
+                    </div>
+                    <span class="text-zinc-300" style="font-size:14px;" data-price="3200">$3,200</span>
+                </div>
+            </div>
+
+            <!-- Item 3 -->
+            <div class="product-card group" data-cat="knitwear" data-name="Chrome Fiber Knit" data-price="1100">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] relative chrome-border mb-6">
+                    <img class="w-full h-full object-cover grayscale brightness-90 group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-sKhB0Ks3Eqlf1pqrwf0zdB7i0K3m5Vm5V8nbcq0ubkYW6I5CrVGGdrA46_aqf0J-xmhe1Gdy9aij3l8LbFTkzkktA2CSImq3iqbbDYLLP7IJGmA2gSYskxAmp0iUtTNFnS1bXwH84ym99efqjNgK58Gm4GApBzsclNn3TrRSTNt38jiVdB3hclDzwxyH4xSi0Rm7i1o-8SxUYAoJc_VummFn9RonHlj4O9EnDjwwedu6fh41x166kXQSfpRIxddSGTXiRUg5F9s"
+                        alt="Chrome Fiber Knit" />
+                    <button
+                        class="absolute bottom-6 right-6 w-12 h-12 chrome-gradient flex items-center justify-center text-black scale-0 group-hover:scale-100 transition-all duration-300 shadow-2xl">
+                        <span class="material-symbols-outlined text-xl">shopping_bag</span>
+                    </button>
+                </div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase tracking-wider" style="font-size:14px;">Chrome Fiber Knit</h3>
+                        <p class="text-zinc-500 uppercase mt-1" style="font-size:11px;letter-spacing:0.1em;">Cashmere
+                            / Metal Hybrid</p>
+                        <p class="text-zinc-600 mt-1"
+                            style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;">Knitwear</p>
+                    </div>
+                    <span class="text-zinc-300" style="font-size:14px;" data-price="1100">$1,100</span>
+                </div>
+            </div>
+
+            <!-- Item 4 -->
+            <div class="product-card group" data-cat="outerwear" data-name="Strata Leather Biker" data-price="4800">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] relative chrome-border mb-6">
+                    <img class="w-full h-full object-cover grayscale brightness-90 group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCiDr2fNd25VKcUMNpTiswd-BWTohyBBQtyRARDTDNGl6dmc-473DKI2YR1IyRHLg8Sbu78W3zr6aldHnVcAdnOF2B2mUZ5l43KjV0EqFB9ut_58BQFlbMr_tHewfFHCtf-suCCc7fP_XgKsWDBlfKt4eweBr9lRnPz5nhuZoJC_mEEWQ_EZp2eigXwGUvYkUNWTbDgnVCxEtSyAUnjBpDK8hxiSoQAxZ2dORGQhrLfoAc-8U3RjhzxFvcqARSuMohg0krRNo8nQO8"
+                        alt="Strata Leather Biker" />
+                    <button
+                        class="absolute bottom-6 right-6 w-12 h-12 chrome-gradient flex items-center justify-center text-black scale-0 group-hover:scale-100 transition-all duration-300 shadow-2xl">
+                        <span class="material-symbols-outlined text-xl">shopping_bag</span>
+                    </button>
+                </div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase tracking-wider" style="font-size:14px;">Strata Leather Biker
+                        </h3>
+                        <p class="text-zinc-500 uppercase mt-1" style="font-size:11px;letter-spacing:0.1em;">Brushed
+                            Calfskin</p>
+                        <p class="text-zinc-600 mt-1"
+                            style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;">Outerwear</p>
+                    </div>
+                    <span class="text-zinc-300" style="font-size:14px;" data-price="4800">$4,800</span>
+                </div>
+            </div>
+
+            <!-- Item 5 -->
+            <div class="product-card group" data-cat="trousers" data-name="Vector Wide Trouser" data-price="850">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] relative chrome-border mb-6">
+                    <img class="w-full h-full object-cover grayscale brightness-90 group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJcjkm8jIWvUtqfVVJ0JZOwsP4toWBIgrM-Y9LrU5xJB384X31aE8fWa8xFWr1ZyrSdS3vlgcRfHv9UAXGC4Bckqjf94S-e0qPc4YZb2E3XjVBfT4cBhlOQZmy9eC4m8idc_4xDMqn4_JOpnKyjJOAAGi6xDGYcqIPjeTM6qIbsDCaXm_PiSvwtqbug2DgvrYCIyUyNt3HIufl5eApCS8KmHbS6dmXFkh9ndfSJS3S_9LRMus0rr6T9-_V4-6bKyEyl6ypCfkIzXw"
+                        alt="Vector Wide Trouser" />
+                    <button
+                        class="absolute bottom-6 right-6 w-12 h-12 chrome-gradient flex items-center justify-center text-black scale-0 group-hover:scale-100 transition-all duration-300 shadow-2xl">
+                        <span class="material-symbols-outlined text-xl">shopping_bag</span>
+                    </button>
+                </div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase tracking-wider" style="font-size:14px;">Vector Wide Trouser
+                        </h3>
+                        <p class="text-zinc-500 uppercase mt-1" style="font-size:11px;letter-spacing:0.1em;">
+                            Structured Serge Wool</p>
+                        <p class="text-zinc-600 mt-1"
+                            style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;">Trousers</p>
+                    </div>
+                    <span class="text-zinc-300" style="font-size:14px;" data-price="850">$850</span>
+                </div>
+            </div>
+
+            <!-- Item 6 -->
+            <div class="product-card group" data-cat="outerwear" data-name="Aura Tech Puffer" data-price="1600">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] relative chrome-border mb-6">
+                    <img class="w-full h-full object-cover grayscale brightness-90 group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCcYkbTlOb0ILnA-o1t3DUh09mc1jSyNyU2uTYtM8EzdMXGAZttxJTYcq3E5G2jfvH0RvmuSxG7x2ZjXydy2ya5vv-6sSyR4xwil2XA5R7ZDDCUwUdhYRKW93zu-duluIRFwbty5SBXKetI3A1wi96gHXZn60mewiVjoD2uH5Twy0xC66C_YNyr0Pfft7CCfYzAwEBM31LmJP2hc4auwxQRPBCNsoHdAhvrO5a8-DYsd9BcmU9gKJ-uhPSstICwgmKV9hLwTbKNvA"
+                        alt="Aura Tech Puffer" />
+                    <button
+                        class="absolute bottom-6 right-6 w-12 h-12 chrome-gradient flex items-center justify-center text-black scale-0 group-hover:scale-100 transition-all duration-300 shadow-2xl">
+                        <span class="material-symbols-outlined text-xl">shopping_bag</span>
+                    </button>
+                </div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase tracking-wider" style="font-size:14px;">Aura Tech Puffer</h3>
+                        <p class="text-zinc-500 uppercase mt-1" style="font-size:11px;letter-spacing:0.1em;">Metallic
+                            Ripstop Nylon</p>
+                        <p class="text-zinc-600 mt-1"
+                            style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;">Outerwear</p>
+                    </div>
+                    <span class="text-zinc-300" style="font-size:14px;" data-price="1600">$1,600</span>
+                </div>
+            </div>
+
+            <!-- Item 7 -->
+            <div class="product-card group" data-cat="knitwear" data-name="Ethereal Long Cardigan"
+                data-price="1400">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] relative chrome-border mb-6">
+                    <img class="w-full h-full object-cover grayscale brightness-90 group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHLlNTg9FRHfSUDTm_WyXNqw07nzdO1tyREabf42oAUssFkW1WiyTS7wOmSEB4Be-xNgKu7pIMKTEfTGe12cjlbOSpvwauYZx5-6yPMmtRRjqj_s0f5mMNeog_J583XxyITBoCsG3XDiGXq20ig4nA-igI5AQrveBupBHGC3Lg6elOoRwBg4AgB2ri7g05UFfx9XBcfaPRQn38ZhahD8-0bWXFM2803SNDwc_2cK0IXye9MnN_tz24MvCDouHsJQWZBqWj-UPZ4Kg"
+                        alt="Ethereal Long Cardigan" />
+                    <button
+                        class="absolute bottom-6 right-6 w-12 h-12 chrome-gradient flex items-center justify-center text-black scale-0 group-hover:scale-100 transition-all duration-300 shadow-2xl">
+                        <span class="material-symbols-outlined text-xl">shopping_bag</span>
+                    </button>
+                </div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase tracking-wider" style="font-size:14px;">Ethereal Long Cardigan
+                        </h3>
+                        <p class="text-zinc-500 uppercase mt-1" style="font-size:11px;letter-spacing:0.1em;">Brushed
+                            Pure Cashmere</p>
+                        <p class="text-zinc-600 mt-1"
+                            style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;">Knitwear</p>
+                    </div>
+                    <span class="text-zinc-300" style="font-size:14px;" data-price="1400">$1,400</span>
+                </div>
+            </div>
+
+            <!-- Item 8 -->
+            <div class="product-card group" data-cat="tailoring" data-name="Lumen Pinstripe Blazer"
+                data-price="1900">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] relative chrome-border mb-6">
+                    <img class="w-full h-full object-cover grayscale brightness-90 group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAg7dhC37ElOaj89bWkrTRAeCNGFK86i3TbnF8bmC7ayuytMWL43qWJBurNWGJ_PF5fFUqfqTlJxYotxJLvFek4wIUf7Xz9kNoEZlo6rqx4v_q1acoooF6Y17HhKytxZOOOn4mjpIxFZjEmpEpArkrWUFrA9w_ZOWDEFvmgOL665Z3XPiF2e_zm_KPuKUBOV-cS1mxqnIzjFIO7VJCp_hDZrlC0gq2u9WpPuSjKTBdAnyV-QESwJ8Zbjo93GtBQiviuByjp20QB7O0"
+                        alt="Lumen Pinstripe Blazer" />
+                    <button
+                        class="absolute bottom-6 right-6 w-12 h-12 chrome-gradient flex items-center justify-center text-black scale-0 group-hover:scale-100 transition-all duration-300 shadow-2xl">
+                        <span class="material-symbols-outlined text-xl">shopping_bag</span>
+                    </button>
+                </div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase tracking-wider" style="font-size:14px;">Lumen Pinstripe Blazer
+                        </h3>
+                        <p class="text-zinc-500 uppercase mt-1" style="font-size:11px;letter-spacing:0.1em;">
+                            Lurex-Infused Wool</p>
+                        <p class="text-zinc-600 mt-1"
+                            style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;">Tailoring</p>
+                    </div>
+                    <span class="text-zinc-300" style="font-size:14px;" data-price="1900">$1,900</span>
+                </div>
+            </div>
+
+            <!-- Item 9 -->
+            <div class="product-card group" data-cat="trousers" data-name="Satin Flare Pant" data-price="720">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] relative chrome-border mb-6">
+                    <img class="w-full h-full object-cover grayscale brightness-90 group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVqQURk-mC9ZMo2n7yQFL46WHn7_4gtt2uN-Cx67TfPP-Mj49BTmIcvlaagJFto3KjpQdmZgSnAiFdpfA7b_U795tmrQL8liSpn1jAedlTB_Flzyv_NWVkwKEFOIZ7LDQReDSNhFc1mSZ3--QMHewuzMtuwovkLxHf1TJ-MDMlNtBq9y_qst_ed-pypjeh35rtVe-EicMm2ml4mzSPpD6x7Y60u1nvPGdCemcdcOuxNI1ISc8eSLCKf9EIPwhjDE7etXc4Z3GPQOc"
+                        alt="Satin Flare Pant" />
+                    <button
+                        class="absolute bottom-6 right-6 w-12 h-12 chrome-gradient flex items-center justify-center text-black scale-0 group-hover:scale-100 transition-all duration-300 shadow-2xl">
+                        <span class="material-symbols-outlined text-xl">shopping_bag</span>
+                    </button>
+                </div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase tracking-wider" style="font-size:14px;">Satin Flare Pant</h3>
+                        <p class="text-zinc-500 uppercase mt-1" style="font-size:11px;letter-spacing:0.1em;">Heavy
+                            Weight Silk Satin</p>
+                        <p class="text-zinc-600 mt-1"
+                            style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;">Trousers</p>
+                    </div>
+                    <span class="text-zinc-300" style="font-size:14px;" data-price="720">$720</span>
+                </div>
+            </div>
+
+            <!-- Item 10 -->
+            <div class="product-card group" data-cat="knitwear" data-name="Helix Knit Polo" data-price="590">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] relative chrome-border mb-6">
+                    <img class="w-full h-full object-cover grayscale brightness-90 group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdkUXyYPtO1nzJ-Fr3EGtkmlgUzABNJIlZYq3fmiTP-m8XiOv6wqveLzn08vqEojPRQMS9jTQNGQjfFny0PuwAjbcHApYOsy9EUBoLtoTNznzsDwmBrEICZt164rIH0fLjYdXOjtfE_-6wB4bTLWkVc_IOER-n6VvDAyYiLncKOBX-tfGIDGvy8LULKesKpk_-UzGP-2RJdEob-UY2qNaxb8qxlEpfd_uDq6Q1RD2uLj2F2KACwnm6PjZX_ZS-lyVY4d8AoreDyCA"
+                        alt="Helix Knit Polo" />
+                    <button
+                        class="absolute bottom-6 right-6 w-12 h-12 chrome-gradient flex items-center justify-center text-black scale-0 group-hover:scale-100 transition-all duration-300 shadow-2xl">
+                        <span class="material-symbols-outlined text-xl">shopping_bag</span>
+                    </button>
+                </div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase tracking-wider" style="font-size:14px;">Helix Knit Polo</h3>
+                        <p class="text-zinc-500 uppercase mt-1" style="font-size:11px;letter-spacing:0.1em;">Textured
+                            Merino</p>
+                        <p class="text-zinc-600 mt-1"
+                            style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;">Knitwear</p>
+                    </div>
+                    <span class="text-zinc-300" style="font-size:14px;" data-price="590">$590</span>
+                </div>
+            </div>
+
+            <!-- Item 11 -->
+            <div class="product-card group" data-cat="outerwear" data-name="Orbital Parka" data-price="1350">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] relative chrome-border mb-6">
+                    <img class="w-full h-full object-cover grayscale brightness-90 group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfJ2aC5PZDAAb20a9ua-bw3OOFrrke6mtHEfdvZz1J4CeESz6VoJ5WKN7xyJxCIDe9juzGl5Wj-wpraAJvhbYsCnkTICi7hBk3ATSjT-4HtGcZHZLoGvUb21ftbyFrq6GXji3K5ZUswxoO-wDf_JioO_FVTPkMbpknApIhbaDwR0nr6ZUSK5xMdlYLU7F0c5Oh7L8Djbf4abyeKo7_Z9ZwpXiBSYQtZXuDS_BBPCY2SDeodMqX7kcsj2siTcrO-hsrP-ot8GH3sJA"
+                        alt="Orbital Parka" />
+                    <button
+                        class="absolute bottom-6 right-6 w-12 h-12 chrome-gradient flex items-center justify-center text-black scale-0 group-hover:scale-100 transition-all duration-300 shadow-2xl">
+                        <span class="material-symbols-outlined text-xl">shopping_bag</span>
+                    </button>
+                </div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase tracking-wider" style="font-size:14px;">Orbital Parka</h3>
+                        <p class="text-zinc-500 uppercase mt-1" style="font-size:11px;letter-spacing:0.1em;">
+                            Weatherproof Nylon</p>
+                        <p class="text-zinc-600 mt-1"
+                            style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;">Outerwear</p>
+                    </div>
+                    <span class="text-zinc-300" style="font-size:14px;" data-price="1350">$1,350</span>
+                </div>
+            </div>
+
+            <!-- Item 12 -->
+            <div class="product-card group" data-cat="trousers" data-name="Utility Tailored Short" data-price="450">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] relative chrome-border mb-6">
+                    <img class="w-full h-full object-cover grayscale brightness-90 group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEr4QXp5s6iTCioMIIdXk_qvYFsoLcAGQ3KURzmszps7HyW4nObSy1slAYODUNqeAANuI4vU1W85d7a_3w890QW2ZkZsZqTVpJBuya7Hoz1hkseWSJpiimScF1eDaUhhCumQqGGWqQcpTd6F_RYblZjoyuk7vdE7uYEurEuItMok2bOPuJ0o6F-JMwvomUww1dOqBYeTVhLLyoDMcLBi3-dbZvUr-7e5TgwiZaD2rfruZIqD_gOU7loV5kqu3b_UceufGqpABMPq4"
+                        alt="Utility Tailored Short" />
+                    <button
+                        class="absolute bottom-6 right-6 w-12 h-12 chrome-gradient flex items-center justify-center text-black scale-0 group-hover:scale-100 transition-all duration-300 shadow-2xl">
+                        <span class="material-symbols-outlined text-xl">shopping_bag</span>
+                    </button>
+                </div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase tracking-wider" style="font-size:14px;">Utility Tailored Short
+                        </h3>
+                        <p class="text-zinc-500 uppercase mt-1" style="font-size:11px;letter-spacing:0.1em;">Flannel /
+                            Silk</p>
+                        <p class="text-zinc-600 mt-1"
+                            style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;">Trousers</p>
+                    </div>
+                    <span class="text-zinc-300" style="font-size:14px;" data-price="450">$450</span>
+                </div>
+            </div>
+
+            <!-- Item 13 -->
+            <div class="product-card group" data-cat="tops" data-name="Interface Mesh Top" data-price="320">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] relative chrome-border mb-6">
+                    <img class="w-full h-full object-cover grayscale brightness-90 group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCC7U1xsYhCpk4dcln5BEXqFvG_aeiWVSvVZ1R_CrCZ7wY9cKFCq9uWafn53Xxt7jkeJaVaVMt-PZG1GGdwXmN6PUMIGb0CidNCMObHLaUJdCovOykajG0mhCBPBU1S8q9oNNO8Gteb91JVaD7LeIblD5qNF0NJvuvSgKi6IHwBDZ1KB5x1geyCKCCdDN2hXEjL-Iic-2LdyjIs2moQM011b-rEhKAEyzB4rPCFMuxhDhvYwCenx-3PJ2PR80G6qS_Z6QIDjQG31tI"
+                        alt="Interface Mesh Top" />
+                    <button
+                        class="absolute bottom-6 right-6 w-12 h-12 chrome-gradient flex items-center justify-center text-black scale-0 group-hover:scale-100 transition-all duration-300 shadow-2xl">
+                        <span class="material-symbols-outlined text-xl">shopping_bag</span>
+                    </button>
+                </div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase tracking-wider" style="font-size:14px;">Interface Mesh Top
+                        </h3>
+                        <p class="text-zinc-500 uppercase mt-1" style="font-size:11px;letter-spacing:0.1em;">Synthetic
+                            Mesh</p>
+                        <p class="text-zinc-600 mt-1"
+                            style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;">Tops &amp; Shirts
+                        </p>
+                    </div>
+                    <span class="text-zinc-300" style="font-size:14px;" data-price="320">$320</span>
+                </div>
+            </div>
+
+            <!-- Item 14 -->
+            <div class="product-card group" data-cat="tops" data-name="Core Utility Vest" data-price="890">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] relative chrome-border mb-6">
+                    <img class="w-full h-full object-cover grayscale brightness-90 group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPanyWpBDMOqpqmMaJldEmWp-BihCdPcaq6873f5Xnx7MQk96qgQqeaOrGKBlRnsMTmN6_wmZhOK3SbBDW0pYms5NZd_UW5lXhmjWNl7ZsLmpGcO9H8YIMLr3PtWn8mC0KHaLk2Y7-RAVtFR2YcYAtas6FUmZTGYi0JBXNljkBGBsu4cRuSn8Y6cKtjK9oRI4I041jMv5PG3wwj5CmmIA6I1ttZ9MhOjo7_9H4TYp3T4niMGWYfJceA8QxnLHNSwL1Zv9F5dIWUfo"
+                        alt="Core Utility Vest" />
+                    <button
+                        class="absolute bottom-6 right-6 w-12 h-12 chrome-gradient flex items-center justify-center text-black scale-0 group-hover:scale-100 transition-all duration-300 shadow-2xl">
+                        <span class="material-symbols-outlined text-xl">shopping_bag</span>
+                    </button>
+                </div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase tracking-wider" style="font-size:14px;">Core Utility Vest</h3>
+                        <p class="text-zinc-500 uppercase mt-1" style="font-size:11px;letter-spacing:0.1em;">Rugged
+                            Canvas</p>
+                        <p class="text-zinc-600 mt-1"
+                            style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;">Tops &amp; Shirts
+                        </p>
+                    </div>
+                    <span class="text-zinc-300" style="font-size:14px;" data-price="890">$890</span>
+                </div>
+            </div>
+
+            <!-- Item 15 -->
+            <div class="product-card group" data-cat="trousers" data-name="Flux Denim Pant" data-price="420">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] relative chrome-border mb-6">
+                    <img class="w-full h-full object-cover grayscale brightness-90 group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBLDs9U_6PBtm4FWeAZATymTrQvNal_TqYnkR-eBXfPagppo604omwr6k7paUbjG1o9GYuRTAvRTZ8a0CT1BaohY9JF5Nz0N1hJ7amQoN_CE5oCK3w_mwYkxOxD5zfUt-Q3ugnJJup1ENeai6_FKLypgXZpDARxz1SKx967aqryEU4mQPc4sHQr3lE1uREU4f7yNRpOtA4dXnLAY4vhNvrtTl3QUXOFuzrESuyAEdd5v1d-r-fk8stkbPlHOP__spsmOTpFhh9xvbc"
+                        alt="Flux Denim Pant" />
+                    <button
+                        class="absolute bottom-6 right-6 w-12 h-12 chrome-gradient flex items-center justify-center text-black scale-0 group-hover:scale-100 transition-all duration-300 shadow-2xl">
+                        <span class="material-symbols-outlined text-xl">shopping_bag</span>
+                    </button>
+                </div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase tracking-wider" style="font-size:14px;">Flux Denim Pant</h3>
+                        <p class="text-zinc-500 uppercase mt-1" style="font-size:11px;letter-spacing:0.1em;">Raw
+                            Japanese Denim</p>
+                        <p class="text-zinc-600 mt-1"
+                            style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;">Trousers</p>
+                    </div>
+                    <span class="text-zinc-300" style="font-size:14px;" data-price="420">$420</span>
+                </div>
+            </div>
+
+            <!-- Item 16 -->
+            <div class="product-card group" data-cat="tops" data-name="Stark Poplin Shirt" data-price="380">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] relative chrome-border mb-6">
+                    <img class="w-full h-full object-cover grayscale brightness-90 group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlDVKv40mAEd3rCOup1IlhI7gPSUX5fnDX8QJzAm5GJ5HkTQCbcKFgblGk3uF2ZBt6ddG-xdUqHNX2gjxFqpzxXdq9BhI5ziE_k_FcfBnYQIIcG4uRvcMMr8AsKfytYRQEz9qn-2Effta31cswnUSQ0zHKQ7qguJs0c5PEcCMl133HHEeO7aNdXrBvoTfTnL-fBSdYB4_TMuQOCu-jcqh4fWdsMIEsjbB5ePJqParlBbo3thUdACJP0x-bgEZTukJhViBa7d2fH9I"
+                        alt="Stark Poplin Shirt" />
+                    <button
+                        class="absolute bottom-6 right-6 w-12 h-12 chrome-gradient flex items-center justify-center text-black scale-0 group-hover:scale-100 transition-all duration-300 shadow-2xl">
+                        <span class="material-symbols-outlined text-xl">shopping_bag</span>
+                    </button>
+                </div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase tracking-wider" style="font-size:14px;">Stark Poplin Shirt
+                        </h3>
+                        <p class="text-zinc-500 uppercase mt-1" style="font-size:11px;letter-spacing:0.1em;">Egyptian
+                            Cotton</p>
+                        <p class="text-zinc-600 mt-1"
+                            style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;">Tops &amp; Shirts
+                        </p>
+                    </div>
+                    <span class="text-zinc-300" style="font-size:14px;" data-price="380">$380</span>
+                </div>
+            </div>
+
+            <!-- Item 17 -->
+            <div class="product-card group" data-cat="outerwear" data-name="Void Cropped Jacket" data-price="1250">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] relative chrome-border mb-6">
+                    <img class="w-full h-full object-cover grayscale brightness-90 group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCiAbnKHAhRv4oOolSLpXbQ8kOwupoqmoPgv-GeZo4eo_H1wuMl1694kczsz0Ik58GGTQIhN9dwJ9FMvIm-8A_OZ4TJOlPNQPHPOjcXtHaFE2-y3XxVYxWaN2hLMzMXNjGWZv7iORbGZkYTuIHTgIg_beBUvAC6-hRG_zAkP6ym1MVKccMRCd_zNz487cNw5ZVP7JgoOxvqpJODn3O852dyEoTpKKX89cuxQU40tJpOaNw11bwudyYFBleEP1cH0Wc4VaBD0XsKqa4"
+                        alt="Void Cropped Jacket" />
+                    <button
+                        class="absolute bottom-6 right-6 w-12 h-12 chrome-gradient flex items-center justify-center text-black scale-0 group-hover:scale-100 transition-all duration-300 shadow-2xl">
+                        <span class="material-symbols-outlined text-xl">shopping_bag</span>
+                    </button>
+                </div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase tracking-wider" style="font-size:14px;">Void Cropped Jacket
+                        </h3>
+                        <p class="text-zinc-500 uppercase mt-1" style="font-size:11px;letter-spacing:0.1em;">Heavy
+                            Wool Melange</p>
+                        <p class="text-zinc-600 mt-1"
+                            style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;">Outerwear</p>
+                    </div>
+                    <span class="text-zinc-300" style="font-size:14px;" data-price="1250">$1,250</span>
+                </div>
+            </div>
+
+            <!-- Item 18 -->
+            <div class="product-card group" data-cat="knitwear" data-name="Lustre Knit Rollneck" data-price="650">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] relative chrome-border mb-6">
+                    <img class="w-full h-full object-cover grayscale brightness-90 group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoxX6MshjxNtEjx-_d8GdXCGrW0VbITsw7HymlYDSzMP7vruyFZ29ZY1EzbyqodhCUXQNk1kVv7UkSob4-hTWuuiL4UWGFdRVxz-QL99dCBxO0oGYGdDj3OA379Mb0Xcho7pVfiShix-0kewebHp7FnuYPH5AV9LFxR5LRtemRiPKE4KuwncqozOBqSxOfqY4Zz6Q1-9Ncdly7vKpoVc8KkQTon4ZxFAZ1uEhYq1uybb1LoNaRJoSP_czS3FwKY2VCo_3_B-FT2PY"
+                        alt="Lustre Knit Rollneck" />
+                    <button
+                        class="absolute bottom-6 right-6 w-12 h-12 chrome-gradient flex items-center justify-center text-black scale-0 group-hover:scale-100 transition-all duration-300 shadow-2xl">
+                        <span class="material-symbols-outlined text-xl">shopping_bag</span>
+                    </button>
+                </div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase tracking-wider" style="font-size:14px;">Lustre Knit Rollneck
+                        </h3>
+                        <p class="text-zinc-500 uppercase mt-1" style="font-size:11px;letter-spacing:0.1em;">Metallic
+                            Silk Blend</p>
+                        <p class="text-zinc-600 mt-1"
+                            style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;">Knitwear</p>
+                    </div>
+                    <span class="text-zinc-300" style="font-size:14px;" data-price="650">$650</span>
+                </div>
+            </div>
+
+        </div><!-- /grid -->
+
+        <!-- Load More -->
+        <div class="mt-32 flex justify-center">
+            <button
+                class="px-16 py-4 border border-zinc-700 text-white uppercase tracking-[0.3em] text-xs hover:bg-white hover:text-black transition-all duration-500"
+                style="font-family:'Manrope',sans-serif;">
+                Show More Collections
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer
+        class="w-full py-12 px-16 flex flex-col md:flex-row justify-between items-center gap-8 bg-black border-t border-zinc-900">
+        <div class="text-lg font-light tracking-[0.3em] text-zinc-200" style="font-family:'Noto Serif',serif;">AURELIA
+        </div>
+        <div class="flex flex-wrap justify-center gap-8">
+            <a class="text-[10px] tracking-widest uppercase text-zinc-600 hover:text-zinc-300 transition-colors"
+                href="#">Privacy Policy</a>
+            <a class="text-[10px] tracking-widest uppercase text-zinc-600 hover:text-zinc-300 transition-colors"
+                href="#">Terms of Service</a>
+            <a class="text-[10px] tracking-widest uppercase text-zinc-600 hover:text-zinc-300 transition-colors"
+                href="#">Shipping &amp; Returns</a>
+            <a class="text-[10px] tracking-widest uppercase text-zinc-600 hover:text-zinc-300 transition-colors"
+                href="#">Sustainability</a>
+            <a class="text-[10px] tracking-widest uppercase text-zinc-600 hover:text-zinc-300 transition-colors"
+                href="#">Contact</a>
+        </div>
+        <div class="text-[10px] tracking-widest uppercase text-zinc-500">© 2026 AURELIA ATELIER. ALL RIGHTS RESERVED.
+        </div>
+    </footer>
+
+    <script src="Javascript/main.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&family=Noto+Serif:ital,wght@0,300;0,400;1,300&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .chrome-gradient {
+            background: linear-gradient(135deg, #FFFFFF 0%, #A3A3A3 100%);
+        }
+
+        .silver-border {
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        /* ── Search bar ── */
+        .search-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-input-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 4px 0;
+            width: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+        }
+
+        .search-input-wrap.open {
+            width: 220px;
+            opacity: 1;
+        }
+
+        .search-input-wrap input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-family: 'Manrope', sans-serif;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            width: 100%;
+        }
+
+        .search-input-wrap input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .search-toggle-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            align-items: center;
+            transition: color 0.2s;
+            padding: 4px;
+        }
+
+        .search-toggle-btn:hover {
+            color: #fff;
+        }
+
+        .search-clear {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.35);
+            cursor: pointer;
+            font-size: 11px;
+            padding: 0 2px;
+            flex-shrink: 0;
+            transition: color 0.2s;
+        }
+
+        .search-clear:hover {
+            color: #fff;
+        }
+
+        /* ── Dropdowns ── */
+        .filter-dropdown,
+        .sort-dropdown {
+            position: relative;
+        }
+
+        .filter-dropdown-menu,
+        .sort-menu {
+            position: absolute;
+            top: calc(100% + 12px);
+            background: #0e0e0e;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-width: 180px;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-6px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .filter-dropdown-menu {
+            left: 0;
+        }
+
+        .sort-menu {
+            right: 0;
+            min-width: 200px;
+        }
+
+        .filter-dropdown-menu.open,
+        .sort-menu.open {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .filter-option,
+        .sort-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            cursor: pointer;
+            font-family: 'Manrope', sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.5);
+            transition: color 0.15s, background 0.15s;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .filter-option:last-child,
+        .sort-option:last-child {
+            border-bottom: none;
+        }
+
+        .filter-option:hover,
+        .sort-option:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .filter-option.selected,
+        .sort-option.selected {
+            color: #fff;
+        }
+
+        .check-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #fff;
+            opacity: 0;
+            transition: opacity .15s;
+            flex-shrink: 0;
+        }
+
+        .filter-option.selected .check-dot,
+        .sort-option.selected .check-dot {
+            opacity: 1;
+        }
+
+        /* ── Active badge ── */
+        .active-cat-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 3px 10px 3px 12px;
+            font-size: 10px;
+            letter-spacing: 0.12em;
+            font-family: 'Manrope', sans-serif;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.7);
+            margin-left: 12px;
+        }
+
+        .active-cat-badge button {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            font-size: 10px;
+            padding: 0;
+            transition: color .15s;
+        }
+
+        .active-cat-badge button:hover {
+            color: #fff;
+        }
+
+        /* ── Cards ── */
+        .product-card {
+            transition: opacity 0.35s ease;
+        }
+
+        .product-card.hidden-item {
+            display: none;
+        }
+
+        .result-count {
+            font-family: 'Manrope', sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.25);
+        }
+    </style>
+</head>
+
+<body class="bg-[#0a0a0a] text-[#e5e2e1]" style="background:#0a0a0a;">
+
+    <!-- ══ NAV — clean, no orphaned tags ══ -->
+    <nav
+        class="fixed top-0 w-full z-50 flex justify-between items-center px-16 h-20 bg-black/90 backdrop-blur-md border-b border-zinc-800">
+
+        <a href="home.html">
+            <div class="text-2xl font-light tracking-[0.2em] text-white uppercase"
+                style="font-family:'Noto Serif',serif;">AURELIA</div>
+        </a>
+
+        <div class="hidden md:flex items-center gap-12">
+            <a class="uppercase text-xs tracking-widest text-zinc-500 hover:text-zinc-200 transition-colors"
+                style="font-family:'Manrope',sans-serif;" href="collection.html">Collection</a>
+            <a class="uppercase text-xs tracking-widest text-white border-b border-white pb-1"
+                style="font-family:'Manrope',sans-serif;" href="#">Accessories</a>
+            <a class="uppercase text-xs tracking-widest text-zinc-500 hover:text-zinc-200 transition-colors"
+                style="font-family:'Manrope',sans-serif;" href="about.html">About</a>
+            <a class="uppercase text-xs tracking-widest text-zinc-500 hover:text-zinc-200 transition-colors"
+                style="font-family:'Manrope',sans-serif;" href="contact.html">Contact</a>
+        </div>
+
+        <div class="flex items-center gap-6">
+            <!-- ── Search bar ── -->
+            <div class="search-container" id="searchContainer">
+                <div class="search-input-wrap" id="searchInputWrap">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" style="flex-shrink:0;">
+                        <circle cx="11" cy="11" r="7" />
+                        <line x1="17" y1="17" x2="22" y2="22" />
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="Search accessories…" autocomplete="off" />
+                    <button class="search-clear" id="searchClear" title="Clear">✕</button>
+                </div>
+                <button class="search-toggle-btn" id="searchToggle" title="Search">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="7" />
+                        <line x1="17" y1="17" x2="22" y2="22" />
+                    </svg>
+                </button>
+            </div>
+            <a href="shopping-bag.html">
+                <button class="text-zinc-300 hover:text-white transition-colors active:scale-95">
+                    <span class="material-symbols-outlined">shopping_bag</span>
+                </button>
+            </a>
+            <button class="text-zinc-300 hover:text-white transition-colors active:scale-95">
+                <span class="material-symbols-outlined">person</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ══ MAIN ══ -->
+    <main class="pt-32 pb-32 px-16 max-w-[1440px] mx-auto">
+
+        <div class="mb-16">
+            <h1 class="text-white uppercase tracking-tighter mb-4 font-light"
+                style="font-family:'Noto Serif',serif;font-size:clamp(2.5rem,6vw,4.5rem);">Sterling Avant-Garde</h1>
+            <p class="text-zinc-400 max-w-2xl" style="font-size:18px;line-height:28px;opacity:0.7;">Architectural
+                precision meets industrial luxury. A curated assembly of structural silhouettes and metallic finishes.
+            </p>
+        </div>
+
+        <!-- Filter Bar -->
+        <section class="flex flex-col md:flex-row justify-between items-end border-b border-zinc-800 pb-8 mb-6 gap-8">
+            <div class="flex items-end gap-16">
+
+                <div class="filter-dropdown" id="catDropdown">
+                    <span class="block mb-2 text-zinc-500 uppercase"
+                        style="font-size:11px;letter-spacing:0.12em;">Type</span>
+                    <button id="catBtn" class="flex items-center gap-2 text-white uppercase tracking-widest"
+                        style="font-size:13px;background:none;border:none;cursor:pointer;font-family:'Manrope',sans-serif;">
+                        <span id="catLabel">All Items</span>
+                        <span class="material-symbols-outlined" style="font-size:16px;transition:transform 0.2s;"
+                            id="catChevron">expand_more</span>
+                    </button>
+                    <div class="filter-dropdown-menu" id="catMenu">
+                        <div class="filter-option selected" data-value="all"><span class="check-dot"></span>All Items
+                        </div>
+                        <div class="filter-option" data-value="jewelry"><span class="check-dot"></span>Jewelry</div>
+                        <div class="filter-option" data-value="bags"><span class="check-dot"></span>Bags</div>
+                        <div class="filter-option" data-value="watches"><span class="check-dot"></span>Watches</div>
+                        <div class="filter-option" data-value="eyewear"><span class="check-dot"></span>Eyewear</div>
+                        <div class="filter-option" data-value="scarves"><span class="check-dot"></span>Scarves</div>
+                        <div class="filter-option" data-value="small-leather"><span class="check-dot"></span>Small
+                            Leather</div>
+                    </div>
+                </div>
+
+                <div class="active-cat-badge" id="activeBadge" style="display:none;">
+                    <span id="activeBadgeLabel"></span>
+                    <button id="clearCat">✕</button>
+                </div>
+            </div>
+
+            <div class="sort-dropdown" id="sortDropdown">
+                <span class="block mb-2 text-zinc-500 uppercase text-right"
+                    style="font-size:11px;letter-spacing:0.12em;">Sort By</span>
+                <button id="sortBtn" class="flex items-center gap-2 text-white uppercase tracking-widest"
+                    style="font-size:13px;background:none;border:none;cursor:pointer;font-family:'Manrope',sans-serif;">
+                    <span id="sortLabel">Newest Arrivals</span>
+                    <span class="material-symbols-outlined" style="font-size:16px;"
+                        id="sortChevron">expand_more</span>
+                </button>
+                <div class="sort-menu" id="sortMenu">
+                    <div class="sort-option selected" data-value="newest"><span class="check-dot"></span>Newest
+                        Arrivals</div>
+                    <div class="sort-option" data-value="price-asc"><span class="check-dot"></span>Price: Low to High
+                    </div>
+                    <div class="sort-option" data-value="price-desc"><span class="check-dot"></span>Price: High to
+                        Low</div>
+                </div>
+            </div>
+        </section>
+
+        <div class="mb-10"><span class="result-count" id="resultCount">18 items</span></div>
+
+        <!-- Product Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-x-8 gap-y-16" id="productGrid">
+
+            <div id="noResults"
+                style="display:none;grid-column:1/-1;text-align:center;padding:80px 0;color:rgba(255,255,255,0.2);font-family:'Noto Serif',serif;font-size:20px;letter-spacing:0.1em;">
+                No items found</div>
+
+            <div class="product-card group flex flex-col" data-cat="jewelry" data-name="Monolith Cuff"
+                data-price="1250">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] mb-6 silver-border"><img
+                        class="w-full h-full object-cover grayscale brightness-90 group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBlUozo4JWtb3-cTcECBLEGhZnXabBMYZ3uBHs_kpAhB6BKQHR1LH5jDBwgqie-m__ChO7NhVelP34kuwLJMME3O_JkTvd_Gys9bafP7TDf0-BxX7XgP7XVeMBN_-60mmeuIg-5kiw1JO5GdgnQhGkvObJbv9l0Ix0GuBETMKkR7a9Jy6e0KATW9eH2DNxlk1SEdYdfAXzX-feidHWlUksZNJXHkOQKUuzC_ylUA7eClDuUg4byYImHIOT5ltH-W8B2sJNHcqQ7F0"
+                        alt="" /></div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase mb-1 tracking-tight" style="font-size:16px;">Monolith Cuff
+                        </h3>
+                        <p class="text-zinc-500 uppercase" style="font-size:11px;letter-spacing:0.1em;">Sterling
+                            Silver 925</p>
+                        <p class="text-zinc-600 mt-1 uppercase" style="font-size:10px;">Jewelry</p>
+                    </div>
+                    <div class="text-right"><span class="text-white block mb-2"
+                            style="font-size:14px;">$1,250</span><button
+                            class="w-10 h-10 flex items-center justify-center border border-zinc-700 hover:bg-white hover:text-black transition-all duration-300"><span
+                                class="material-symbols-outlined" style="font-size:20px;">shopping_bag</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card group flex flex-col" data-cat="bags" data-name="Observer Tote"
+                data-price="3800">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] mb-6 silver-border"><img
+                        class="w-full h-full object-cover grayscale brightness-75 group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsAdzL-cG5b-49jiz2L1V2tNpaYWOYvoZ_jEckLep15dtBnoj-dTpMBr0EHkYEIx1tC9wRS9d8OJsw3n8AWTZjXRc5H57FK2RHDBzBM0vRfIuz7UpCcMcJc6fSGz1sv_ggDWWhC2jIM8k-UiZPwxakzej4mFZTWr8sYqPqgItYTvyZ9-bz1di7iqCTPnsXIg2CEzvnAfZ0Frww7RlmP-q7AOrxO1dge80LgVlHF3h6psRzV2M_K4ZdLCAyvEubQ-xTX-4eJOWe8eI"
+                        alt="" /></div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase mb-1 tracking-tight" style="font-size:16px;">Observer Tote
+                        </h3>
+                        <p class="text-zinc-500 uppercase" style="font-size:11px;letter-spacing:0.1em;">Industrial
+                            Leather</p>
+                        <p class="text-zinc-600 mt-1 uppercase" style="font-size:10px;">Bags</p>
+                    </div>
+                    <div class="text-right"><span class="text-white block mb-2"
+                            style="font-size:14px;">$3,800</span><button
+                            class="w-10 h-10 flex items-center justify-center border border-zinc-700 hover:bg-white hover:text-black transition-all duration-300"><span
+                                class="material-symbols-outlined" style="font-size:20px;">shopping_bag</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card group flex flex-col" data-cat="watches" data-name="Temporal Phase I"
+                data-price="8400">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] mb-6 silver-border"><img
+                        class="w-full h-full object-cover grayscale group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBj5h3HwQVMpwJg9fuIJlopoqMJjtK1tjx9Dpktj9qXJd06JShyXojoIHtdjC_Qbcsp8A2O--XoyVqp4nXC2keuVKTae_-CpaThaviiToMVth9EAb3qseybXYErOoURdilvVAGQjgz_5TypDIiCTIXstw6z7VlekpOmOfwIBKCGPk4wQd5zKijqhyTiVprxtczbNoNf08EQGH8PXtIQfJv-s676oWYcqDmIfCG7QyYvs0hsfY-WgauifjxPR31HDxdecA6vunHwjLI"
+                        alt="" /></div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase mb-1 tracking-tight" style="font-size:16px;">Temporal Phase I
+                        </h3>
+                        <p class="text-zinc-500 uppercase" style="font-size:11px;letter-spacing:0.1em;">Brushed Steel
+                        </p>
+                        <p class="text-zinc-600 mt-1 uppercase" style="font-size:10px;">Watches</p>
+                    </div>
+                    <div class="text-right"><span class="text-white block mb-2"
+                            style="font-size:14px;">$8,400</span><button
+                            class="w-10 h-10 flex items-center justify-center border border-zinc-700 hover:bg-white hover:text-black transition-all duration-300"><span
+                                class="material-symbols-outlined" style="font-size:20px;">shopping_bag</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card group flex flex-col" data-cat="eyewear" data-name="Shield 01" data-price="650">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] mb-6 silver-border"><img
+                        class="w-full h-full object-cover grayscale brightness-90 group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCEcTz9NunQIjFlyDUhAU9c00lJjQ-C3O1GCQl9ZIprgEfuzCEMoWTG3PZQPXO9LVj8CoMr56SHtOBjfOfJFlfZvXHnkZEhV2j3u9nMhAmZFDl8KJvpYzY9jSzOkYiJL6pK9V-vBYgUC3kixwDv61FrtoWRsvpWDl4QuO1IjhqoUgucicnzfVxg-Orxuiiy6YmHfShj8pff90fvTP1KlHJDmZBW1VyN3Qmye0vuEWYLl9Bts6rmr_msWI73v54n4GUWOGjTTBzknVA"
+                        alt="" /></div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase mb-1 tracking-tight" style="font-size:16px;">Shield 01</h3>
+                        <p class="text-zinc-500 uppercase" style="font-size:11px;letter-spacing:0.1em;">Titanium Core
+                        </p>
+                        <p class="text-zinc-600 mt-1 uppercase" style="font-size:10px;">Eyewear</p>
+                    </div>
+                    <div class="text-right"><span class="text-white block mb-2"
+                            style="font-size:14px;">$650</span><button
+                            class="w-10 h-10 flex items-center justify-center border border-zinc-700 hover:bg-white hover:text-black transition-all duration-300"><span
+                                class="material-symbols-outlined" style="font-size:20px;">shopping_bag</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card group flex flex-col" data-cat="scarves" data-name="Grid Silk Wrap"
+                data-price="420">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] mb-6 silver-border"><img
+                        class="w-full h-full object-cover grayscale group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMD0aMkLLAr7qWTku30wgwjWKy_g0U-rXU362a7f8xF3YYcLVuGXaNyixKy5hRO0-S_l9V8iq4Fefy4BZsfl2EMWz-hJ_GiWfYzSuiN5otMT4enroqOa55kgMdklwm3AZcsau9XVnlackdcNOqUuiUN0or5fKB_G1u5TSUQRBxjd4-LbIt5rjH3Udw_36880dksEggOiIJZXFCIF67MHZTV2RAXZeUPfKz4jwYd6-CvQoDn3zoZEvadhJIPANyoOVnA1wlQNYEUk8"
+                        alt="" /></div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase mb-1 tracking-tight" style="font-size:16px;">Grid Silk Wrap
+                        </h3>
+                        <p class="text-zinc-500 uppercase" style="font-size:11px;letter-spacing:0.1em;">100% Mulberry
+                            Silk</p>
+                        <p class="text-zinc-600 mt-1 uppercase" style="font-size:10px;">Scarves</p>
+                    </div>
+                    <div class="text-right"><span class="text-white block mb-2"
+                            style="font-size:14px;">$420</span><button
+                            class="w-10 h-10 flex items-center justify-center border border-zinc-700 hover:bg-white hover:text-black transition-all duration-300"><span
+                                class="material-symbols-outlined" style="font-size:20px;">shopping_bag</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card group flex flex-col" data-cat="small-leather" data-name="Calyx Card Case"
+                data-price="290">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] mb-6 silver-border"><img
+                        class="w-full h-full object-cover grayscale group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7bD6jQU7fKmJfM0SejG9fTfbcu1hX029m06SAA5HoR24dBmGJwft8j5pPIzoKKG3Aa2H4fEkymj1vaspLbX7G7mW_5OTndoS7ScooDLnL0RjJsZ8MpgvAmRhV-0SY6r67kPcoJUrbexqCwgOBAUo8iQu-uDDKbCa17eglYtTQrXVoKN858LZxG3blGFQwqhqm3KQdTqngWHE8xCoLjXf_GgbzQo79xXEV6WSgHXtaHEU2GucVaOIBRhqGAHNgv3o3JeSlGeDyH2U"
+                        alt="" /></div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase mb-1 tracking-tight" style="font-size:16px;">Calyx Card Case
+                        </h3>
+                        <p class="text-zinc-500 uppercase" style="font-size:11px;letter-spacing:0.1em;">Calfskin /
+                            Silver</p>
+                        <p class="text-zinc-600 mt-1 uppercase" style="font-size:10px;">Small Leather</p>
+                    </div>
+                    <div class="text-right"><span class="text-white block mb-2"
+                            style="font-size:14px;">$290</span><button
+                            class="w-10 h-10 flex items-center justify-center border border-zinc-700 hover:bg-white hover:text-black transition-all duration-300"><span
+                                class="material-symbols-outlined" style="font-size:20px;">shopping_bag</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card group flex flex-col" data-cat="jewelry" data-name="Vector Chain"
+                data-price="1850">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] mb-6 silver-border"><img
+                        class="w-full h-full object-cover grayscale group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTVXjOC_0PEboNWxAvTW92pHxL0Y8NcAwM1_2P2Cf1r4Ca1nCZ2pBSuMyNU84mUtUdFTyZhdRwfkY8ALmHErsGjE9QDAR1np9xeLuld9G45YF09kIODbeeu3tDKpN8qOO-HIOqqUmFMUei8KUhK7oThdirKPGHGjzHjK_06mNTLePH3z3p_1CvzvQifLH7sRCDexoXFoBeKIg-JAopStReCxCkjbW871v3UKaCdIHw9-0wab38Qm8WdFjni2k7bsgFb1rxbp9b834"
+                        alt="" /></div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase mb-1 tracking-tight" style="font-size:16px;">Vector Chain</h3>
+                        <p class="text-zinc-500 uppercase" style="font-size:11px;letter-spacing:0.1em;">Sterling
+                            Silver</p>
+                        <p class="text-zinc-600 mt-1 uppercase" style="font-size:10px;">Jewelry</p>
+                    </div>
+                    <div class="text-right"><span class="text-white block mb-2"
+                            style="font-size:14px;">$1,850</span><button
+                            class="w-10 h-10 flex items-center justify-center border border-zinc-700 hover:bg-white hover:text-black transition-all duration-300"><span
+                                class="material-symbols-outlined" style="font-size:20px;">shopping_bag</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card group flex flex-col" data-cat="jewelry" data-name="Dualist Ring"
+                data-price="2100">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] mb-6 silver-border"><img
+                        class="w-full h-full object-cover grayscale group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJEJ_KwN2nB50Duw3h3M2QcBh1y2mIsvH0KYteb8fEDdoNVeSgShTlZAyhgQ9wIriNLocL9Zm_LJVb1WluFNzn6sSuTGfTVbbkU4mTLVHasKOOj-EylgpPQ-hwnqjfjj1yVkYY_5qa9fhYPKMisgPdZv69_1fP_GIBqDMja5mwTPhjSROAd_D2ukiL9m8V7MQRvA_OH_xySP2ViO1wHz58jw6h0LJpcar5OH1HLmkyzbykAPqevm6dLyTpD1YBiSwGt_P8ogP79xk"
+                        alt="" /></div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase mb-1 tracking-tight" style="font-size:16px;">Dualist Ring</h3>
+                        <p class="text-zinc-500 uppercase" style="font-size:11px;letter-spacing:0.1em;">White Gold</p>
+                        <p class="text-zinc-600 mt-1 uppercase" style="font-size:10px;">Jewelry</p>
+                    </div>
+                    <div class="text-right"><span class="text-white block mb-2"
+                            style="font-size:14px;">$2,100</span><button
+                            class="w-10 h-10 flex items-center justify-center border border-zinc-700 hover:bg-white hover:text-black transition-all duration-300"><span
+                                class="material-symbols-outlined" style="font-size:20px;">shopping_bag</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card group flex flex-col" data-cat="small-leather" data-name="Bolt Link"
+                data-price="350">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] mb-6 silver-border"><img
+                        class="w-full h-full object-cover grayscale group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBifxfOfelWJ9AhEyJJoNNqkVf0NCW9QjgTLv6IvlNKRfIoAVKzQ7J5sO2uG-9f4-gGvyVPWpBMDK5vHa3ISWwrKM9w_F1Gp8LaoTxCudpWpwI4tC8Y5GKs2Lzhli9jsIUJsjLE2EhrWozeQhzfetiOLFYPlTlD1kDblTvpS0Xv1XB5gLuxWiv-d9yagkiNsDqaQKbOxRnmoRrywWMm0fr0L71H_HMq06GQbtclwKWkBUKMkHk-0hpg6nWdY4MST_34z_2NolPouBs"
+                        alt="" /></div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase mb-1 tracking-tight" style="font-size:16px;">Bolt Link</h3>
+                        <p class="text-zinc-500 uppercase" style="font-size:11px;letter-spacing:0.1em;">Rhodium Plate
+                        </p>
+                        <p class="text-zinc-600 mt-1 uppercase" style="font-size:10px;">Small Leather</p>
+                    </div>
+                    <div class="text-right"><span class="text-white block mb-2"
+                            style="font-size:14px;">$350</span><button
+                            class="w-10 h-10 flex items-center justify-center border border-zinc-700 hover:bg-white hover:text-black transition-all duration-300"><span
+                                class="material-symbols-outlined" style="font-size:20px;">shopping_bag</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card group flex flex-col" data-cat="bags" data-name="Prism Clutch"
+                data-price="1950">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] mb-6 silver-border"><img
+                        class="w-full h-full object-cover grayscale brightness-75 group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKUmDM7PhNjbTtiDaV60A-dzHcZHfgaWgvx1vuYkS4sLWnTVWODSgiwb5ccPz4Jhecj_FAPKI01f2NXi0fvaxL4aRlLe806tp4LlEelDyBTebBRrlRfO7PxdjBa9tn8X9ZUHlot4W5beTQw0lo_jQ4V1HVK8EeFaTZKfZ8WQFak2wC_1rqk3uZehRkzurwY4Gk1SEaK9yLXvZrMzrccrtMSEGvurY8sw12fB_9eRMe94WhkouzugpmtG3LokDHjsucLHw6ysz3MoU"
+                        alt="" /></div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase mb-1 tracking-tight" style="font-size:16px;">Prism Clutch</h3>
+                        <p class="text-zinc-500 uppercase" style="font-size:11px;letter-spacing:0.1em;">Metallic Resin
+                        </p>
+                        <p class="text-zinc-600 mt-1 uppercase" style="font-size:10px;">Bags</p>
+                    </div>
+                    <div class="text-right"><span class="text-white block mb-2"
+                            style="font-size:14px;">$1,950</span><button
+                            class="w-10 h-10 flex items-center justify-center border border-zinc-700 hover:bg-white hover:text-black transition-all duration-300"><span
+                                class="material-symbols-outlined" style="font-size:20px;">shopping_bag</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card group flex flex-col" data-cat="scarves" data-name="Void Scarf"
+                data-price="580">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] mb-6 silver-border"><img
+                        class="w-full h-full object-cover grayscale group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-JdXzOkzXaqzEaTqBKml9s5JRNM-UhvefD9aRkOri5sklNsfcEWc1KBECoteiyfSFYn5KbRtQ-PtGIvfFdUs8slFaqsJdYa7D1bHT0CO8ez2yA8k_aiJb1fls28BoLoPo35-U84VF2lYQf11h1fUupQ4l_pv2b5GDn6hxhP1g9WxvPUNqsCHLGc47ET5sN6nc8ERtyUlNsbWEP3Kd-KsmN96Frw1Yk_vfBFOD3bvwly7y09GdsIg-93msG6GpT6-BIy9KjJ-7Pis"
+                        alt="" /></div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase mb-1 tracking-tight" style="font-size:16px;">Void Scarf</h3>
+                        <p class="text-zinc-500 uppercase" style="font-size:11px;letter-spacing:0.1em;">Heavy Merino
+                        </p>
+                        <p class="text-zinc-600 mt-1 uppercase" style="font-size:10px;">Scarves</p>
+                    </div>
+                    <div class="text-right"><span class="text-white block mb-2"
+                            style="font-size:14px;">$580</span><button
+                            class="w-10 h-10 flex items-center justify-center border border-zinc-700 hover:bg-white hover:text-black transition-all duration-300"><span
+                                class="material-symbols-outlined" style="font-size:20px;">shopping_bag</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card group flex flex-col" data-cat="eyewear" data-name="Ghost Frame"
+                data-price="720">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] mb-6 silver-border"><img
+                        class="w-full h-full object-cover grayscale group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBeBTxyaBCY5INBjGFfE6gR32CZCpWWJylDXeylexn0Tp5n0ZBIAM0rPqOk1chiq7KH0rpN2XPxUDvd-KRdGMMM23E0o31Jy_Y_RDHL6NipXN_Jm8m9kTbpQ85vcMmyOqXrkeqT0KWE2FUaO7GpRjuWbk8ZjjQH7mT2CmUg29RJFPG9aXJPLYjU1-gExq3V7no29dqUQZoT0j0A7S2h2lVmdam9YhLBmXsE69WD_6aVlYgK1Fpa28KlUPG3ZeEKgQIz2RQTAdfX8Y4"
+                        alt="" /></div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase mb-1 tracking-tight" style="font-size:16px;">Ghost Frame</h3>
+                        <p class="text-zinc-500 uppercase" style="font-size:11px;letter-spacing:0.1em;">Surgical Steel
+                        </p>
+                        <p class="text-zinc-600 mt-1 uppercase" style="font-size:10px;">Eyewear</p>
+                    </div>
+                    <div class="text-right"><span class="text-white block mb-2"
+                            style="font-size:14px;">$720</span><button
+                            class="w-10 h-10 flex items-center justify-center border border-zinc-700 hover:bg-white hover:text-black transition-all duration-300"><span
+                                class="material-symbols-outlined" style="font-size:20px;">shopping_bag</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card group flex flex-col" data-cat="watches" data-name="Depth Gauge"
+                data-price="12500">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] mb-6 silver-border"><img
+                        class="w-full h-full object-cover grayscale group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9fhiOUU4dLUjFE7iLvM7gH7yQ7Z-990ZXe9GFhqx3RGYaVUGXBzADjJeDS9d3AJuA-9YmvLBP89CwWKHaEXd_KRQwR0vgZkMs9lSH10aDStEAaNO1almpqLMnEvTFpBVy4zCpbiDojam14kDIBIgx5cPWoF3aTlercNM2pptFuOWljTMBJbhajJ_SIap6IEgnFSmeeEqbVtoIORkyAmTA97_aS7SgaC_5zNVZtRlkXwfkUFOIgkMA_LSLVDYR1u0r3grpGrQPJIk"
+                        alt="" /></div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase mb-1 tracking-tight" style="font-size:16px;">Depth Gauge</h3>
+                        <p class="text-zinc-500 uppercase" style="font-size:11px;letter-spacing:0.1em;">Ceramic /
+                            Steel</p>
+                        <p class="text-zinc-600 mt-1 uppercase" style="font-size:10px;">Watches</p>
+                    </div>
+                    <div class="text-right"><span class="text-white block mb-2"
+                            style="font-size:14px;">$12,500</span><button
+                            class="w-10 h-10 flex items-center justify-center border border-zinc-700 hover:bg-white hover:text-black transition-all duration-300"><span
+                                class="material-symbols-outlined" style="font-size:20px;">shopping_bag</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card group flex flex-col" data-cat="jewelry" data-name="Helix Stud"
+                data-price="850">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] mb-6 silver-border"><img
+                        class="w-full h-full object-cover grayscale group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuArYB2ZcwOfymmVFwnTQz-aqp7zltO-0N5jE1rHoukI8roGV51v_Bo51NeYDTPPeeJ3xb76K4yCoaiiOsVt9pzsbEeT9dbSQlbEd_zQjQpPM104zJYwv8Tjsd5RVsqy9iobz0liMMxHdBAzu-lwXq28vfpLZs48dvV-xnWiVvN3cFAhmtVp2qVwHeh-tB4YjX_OBhzsksjZBHijNmO2JfZfNebbf-wLWMUc94jbXvMC5-GvXpkYOCocQQPtIcs2A1_RxE1e6CfbDQw"
+                        alt="" /></div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase mb-1 tracking-tight" style="font-size:16px;">Helix Stud</h3>
+                        <p class="text-zinc-500 uppercase" style="font-size:11px;letter-spacing:0.1em;">Sterling
+                            Silver</p>
+                        <p class="text-zinc-600 mt-1 uppercase" style="font-size:10px;">Jewelry</p>
+                    </div>
+                    <div class="text-right"><span class="text-white block mb-2"
+                            style="font-size:14px;">$850</span><button
+                            class="w-10 h-10 flex items-center justify-center border border-zinc-700 hover:bg-white hover:text-black transition-all duration-300"><span
+                                class="material-symbols-outlined" style="font-size:20px;">shopping_bag</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card group flex flex-col" data-cat="bags" data-name="Exit Duffel" data-price="5200">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] mb-6 silver-border"><img
+                        class="w-full h-full object-cover grayscale group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0kDn3wANp3NFKCi3nHaLKMxS9BHY1Ywesoq_OUq9Aw3C4YMX2O5U1dLnssof_953oxNGIQPaXaVMbbRxnfH1XrUVO5jXiym7Jg74wB4-xZhlEOxB0Ccj7B-zCBHzGZTRcjMgQ8sHzOTGGataoJZYyJsZzwsQuZHFQQg6vBeGirASwI42pgcJIF4p1BVfcTplfYjkpco-5r_jTYlN00lEKqMrzXSkHa-p6qt8ND3kZmM4uFHoNnm-QKox97vd7ArDp_qXxv8F64aU"
+                        alt="" /></div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase mb-1 tracking-tight" style="font-size:16px;">Exit Duffel</h3>
+                        <p class="text-zinc-500 uppercase" style="font-size:11px;letter-spacing:0.1em;">Pebbled
+                            Leather</p>
+                        <p class="text-zinc-600 mt-1 uppercase" style="font-size:10px;">Bags</p>
+                    </div>
+                    <div class="text-right"><span class="text-white block mb-2"
+                            style="font-size:14px;">$5,200</span><button
+                            class="w-10 h-10 flex items-center justify-center border border-zinc-700 hover:bg-white hover:text-black transition-all duration-300"><span
+                                class="material-symbols-outlined" style="font-size:20px;">shopping_bag</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card group flex flex-col" data-cat="small-leather" data-name="Block Belt"
+                data-price="450">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] mb-6 silver-border"><img
+                        class="w-full h-full object-cover grayscale group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8q2rusuXz4uRmU0X1FzgF5NJXJc7aZ0bcx0vQ9F0ahPAeo6ZflvUscEMLy3PxkPRtx3BQWU1guAxd6GPSxZKh15c3XPfxJ6-Pf6xWuszVbyp2mc7mFX3GSJyWjQkmvrp_zZz3lrmDrMFe7_mewrBocYGaI5s20k3yB5Gk1YDEzkpD1uCxL1pal1t_8EKGcttvbxYPqPbSmXFdtLHK-VfK9U1aoeZ0pdEcIOvpy2cxZ_HVRpn-k5Dq2WJ2H54cHahXFpMCGLiGlNU"
+                        alt="" /></div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase mb-1 tracking-tight" style="font-size:16px;">Block Belt</h3>
+                        <p class="text-zinc-500 uppercase" style="font-size:11px;letter-spacing:0.1em;">Bridle Leather
+                            / Chrome</p>
+                        <p class="text-zinc-600 mt-1 uppercase" style="font-size:10px;">Small Leather</p>
+                    </div>
+                    <div class="text-right"><span class="text-white block mb-2"
+                            style="font-size:14px;">$450</span><button
+                            class="w-10 h-10 flex items-center justify-center border border-zinc-700 hover:bg-white hover:text-black transition-all duration-300"><span
+                                class="material-symbols-outlined" style="font-size:20px;">shopping_bag</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card group flex flex-col" data-cat="jewelry" data-name="Trio Stack"
+                data-price="1400">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] mb-6 silver-border"><img
+                        class="w-full h-full object-cover grayscale group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBS5PCYi9MDZT0sirnkMYtI8no2mLsKlw_ZF7VY4L-rEcW_-H6q6ywaWuVbbFbVfy-nOW5xmFS8hQcHp-5h_OUT5ywR6Ivqd17rUCfRzKb6RDqU5eQZRamHgnFPm6ptE4EOsopYyMBTd1NfUe4VfJbNmoRkkKx4GEFGW1HozHqCoT6-n_R_vThdYgN7BQCFycA45bRWD5hLqM0kDcJvsVKhJzTaDvtqhHjDPZPuKpaCbT_KrS36GI65lZHTiHRkoG_3HH7uRfnEze0"
+                        alt="" /></div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase mb-1 tracking-tight" style="font-size:16px;">Trio Stack</h3>
+                        <p class="text-zinc-500 uppercase" style="font-size:11px;letter-spacing:0.1em;">Mixed Metals
+                        </p>
+                        <p class="text-zinc-600 mt-1 uppercase" style="font-size:10px;">Jewelry</p>
+                    </div>
+                    <div class="text-right"><span class="text-white block mb-2"
+                            style="font-size:14px;">$1,400</span><button
+                            class="w-10 h-10 flex items-center justify-center border border-zinc-700 hover:bg-white hover:text-black transition-all duration-300"><span
+                                class="material-symbols-outlined" style="font-size:20px;">shopping_bag</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card group flex flex-col" data-cat="small-leather" data-name="Axis Wallet"
+                data-price="620">
+                <div class="aspect-[3/4] overflow-hidden bg-[#0e0e0e] mb-6 silver-border"><img
+                        class="w-full h-full object-cover grayscale brightness-90 group-hover:scale-105 transition-transform duration-700"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDKMPmtscPKUmf9oYDYd6L794jh9MaGD3T53Fk9k_nsmjpw0x12hE7bxSHKywfpi5WWhvLM4NEy9EGg_EYfN4JMHqJ53wmQvRD3o6gsK49GtDdiQpF_9bLDPzFhqEFs-KF9va0o948UKs5zuwR-O4vjYj_kjT6-jY5PE1UJ5hO9DSYcj9spRJmBgkhSv87FZf71TTBAQx_Ape-Za21EwAg47LPG4GVyT4mHldFDrOepxth7Fym27IezSFabSpclH88iB8p5649pJI"
+                        alt="" /></div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-white uppercase mb-1 tracking-tight" style="font-size:16px;">Axis Wallet</h3>
+                        <p class="text-zinc-500 uppercase" style="font-size:11px;letter-spacing:0.1em;">Matte Calfskin
+                        </p>
+                        <p class="text-zinc-600 mt-1 uppercase" style="font-size:10px;">Small Leather</p>
+                    </div>
+                    <div class="text-right"><span class="text-white block mb-2"
+                            style="font-size:14px;">$620</span><button
+                            class="w-10 h-10 flex items-center justify-center border border-zinc-700 hover:bg-white hover:text-black transition-all duration-300"><span
+                                class="material-symbols-outlined" style="font-size:20px;">shopping_bag</span></button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mt-24 flex justify-center">
+            <button
+                class="px-16 py-4 silver-border hover:bg-white hover:text-black transition-all duration-500 uppercase tracking-[0.3em]"
+                style="font-size:11px;font-family:'Manrope',sans-serif;">View All Archives</button>
+        </div>
+
+    </main>
+
+    <footer
+        class="w-full py-12 px-16 flex flex-col md:flex-row justify-between items-center gap-8 bg-black border-t border-zinc-900">
+        <div class="text-lg font-light tracking-[0.3em] text-zinc-200" style="font-family:'Noto Serif',serif;">AURELIA
+        </div>
+        <div class="flex flex-wrap justify-center gap-8">
+            <a class="text-[10px] tracking-widest uppercase text-zinc-600 hover:text-zinc-300 transition-colors"
+                href="#">Privacy Policy</a>
+            <a class="text-[10px] tracking-widest uppercase text-zinc-600 hover:text-zinc-300 transition-colors"
+                href="#">Terms of Service</a>
+            <a class="text-[10px] tracking-widest uppercase text-zinc-600 hover:text-zinc-300 transition-colors"
+                href="#">Shipping &amp; Returns</a>
+            <a class="text-[10px] tracking-widest uppercase text-zinc-600 hover:text-zinc-300 transition-colors"
+                href="#">Sustainability</a>
+            <a class="text-[10px] tracking-widest uppercase text-zinc-600 hover:text-zinc-300 transition-colors"
+                href="#">Contact</a>
+        </div>
+        <div class="text-[10px] tracking-widest uppercase text-zinc-500">© 2026 AURELIA ATELIER. ALL RIGHTS RESERVED.
+        </div>
+    </footer>
+
+    <!-- ══ JS INLINE — fixes the broken external script ══ -->
+    <script src="Javascript/main.js"></script>
+</body>
+
+</html>

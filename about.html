@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&family=Noto+Serif:ital,wght@0,300;0,400;1,300&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .chrome-gradient {
+            background: linear-gradient(135deg, #FFFFFF 0%, #A3A3A3 100%);
+        }
+
+        .chrome-border {
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        /* ── Search bar ── */
+        .search-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-input-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 4px 0;
+            width: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+        }
+
+        .search-input-wrap.open {
+            width: 220px;
+            opacity: 1;
+        }
+
+        .search-input-wrap input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-family: 'Manrope', sans-serif;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            width: 100%;
+        }
+
+        .search-input-wrap input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .search-toggle-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            align-items: center;
+            transition: color 0.2s;
+            padding: 4px;
+        }
+
+        .search-toggle-btn:hover {
+            color: #fff;
+        }
+
+        .search-clear {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.35);
+            cursor: pointer;
+            font-size: 11px;
+            padding: 0 2px;
+            flex-shrink: 0;
+            transition: color 0.2s;
+        }
+
+        .search-clear:hover {
+            color: #fff;
+        }
+
+        /* ── Category dropdown ── */
+        .filter-dropdown {
+            position: relative;
+        }
+
+        .filter-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 12px);
+            left: 0;
+            background: #0e0e0e;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-width: 180px;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-6px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .filter-dropdown-menu.open {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            cursor: pointer;
+            font-family: 'Manrope', sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.5);
+            transition: color 0.15s, background 0.15s;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .filter-option:last-child {
+            border-bottom: none;
+        }
+
+        .filter-option:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .filter-option.selected {
+            color: #fff;
+        }
+
+        .filter-option .check-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #fff;
+            opacity: 0;
+            transition: opacity 0.15s;
+            flex-shrink: 0;
+        }
+
+        .filter-option.selected .check-dot {
+            opacity: 1;
+        }
+
+        /* active filter label badge */
+        .active-cat-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 3px 10px 3px 12px;
+            font-size: 10px;
+            letter-spacing: 0.12em;
+            font-family: 'Manrope', sans-serif;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.7);
+            margin-left: 12px;
+        }
+
+        .active-cat-badge button {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            font-size: 10px;
+            line-height: 1;
+            padding: 0;
+            transition: color 0.15s;
+        }
+
+        .active-cat-badge button:hover {
+            color: #fff;
+        }
+
+        /* ── Product card ── */
+        .product-card {
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+
+        .product-card.hidden-item {
+            display: none;
+        }
+
+        /* No results */
+        #noResults {
+            display: none;
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 80px 0;
+            color: rgba(255, 255, 255, 0.25);
+            font-family: 'Noto Serif', serif;
+            font-size: 18px;
+            letter-spacing: 0.1em;
+        }
+
+        /* Sort dropdown */
+        .sort-dropdown {
+            position: relative;
+        }
+
+        .sort-menu {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            background: #0e0e0e;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-width: 200px;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-6px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .sort-menu.open {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .sort-option {
+            padding: 12px 16px;
+            cursor: pointer;
+            font-family: 'Manrope', sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.5);
+            transition: color 0.15s, background 0.15s;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sort-option:last-child {
+            border-bottom: none;
+        }
+
+        .sort-option:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .sort-option.selected {
+            color: #fff;
+        }
+
+        .sort-option .check-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #fff;
+            opacity: 0;
+            transition: opacity .15s;
+            flex-shrink: 0;
+        }
+
+        .sort-option.selected .check-dot {
+            opacity: 1;
+        }
+
+        /* result count */
+        .result-count {
+            font-family: 'Manrope', sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        /* search highlight */
+        mark {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            padding: 0 2px;
+        }
+    </style>
+</head>
+
+<body class="bg-[#0a0a0a] text-[#e5e2e1] font-[Manrope]" style="background:#0a0a0a;">
+
+    <!-- ══════════════════════════════
+     TOP NAV BAR
+══════════════════════════════ -->
+    <nav
+        class="fixed top-0 w-full z-50 flex justify-between items-center px-16 h-20 bg-black/90 backdrop-blur-md border-b border-zinc-800">
+
+        <!-- Logo -->
+        <a href="home.html">
+            <div class="text-2xl font-light tracking-[0.2em] text-white uppercase"
+                style="font-family:'Noto Serif',serif;">AURELIA</div>
+        </a>
+
+        <!-- Nav links -->
+        <div class="hidden md:flex items-center gap-12">
+            <a class="uppercase text-xs tracking-widest text-zinc-500 hover:text-zinc-200 transition-colors"
+                style="font-family:'Manrope',sans-serif;" href="collection.html">Collection</a>
+            <a class="uppercase text-xs tracking-widest text-zinc-500 hover:text-zinc-200 transition-colors"
+                style="font-family:'Manrope',sans-serif;" href="accessories.html">Accessories</a>
+            <a class="uppercase text-xs tracking-widest text-white border-b border-white pb-1"
+                style="font-family:'Manrope',sans-serif;" href="#">About</a>
+            <a class="uppercase text-xs tracking-widest text-zinc-500 hover:text-zinc-200 transition-colors"
+                style="font-family:'Manrope',sans-serif;" href="contact.html">Contact</a>
+        </div>
+
+        <!-- Right actions: search + icons -->
+        <div class="flex items-center gap-6">
+
+            <!-- ── Search bar ── -->
+            <div class="search-container" id="searchContainer">
+                <div class="search-input-wrap" id="searchInputWrap">
+                    <!-- inline search icon -->
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" style="flex-shrink:0;">
+                        <circle cx="11" cy="11" r="7" />
+                        <line x1="17" y1="17" x2="22" y2="22" />
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="Search collection…" autocomplete="off" />
+                    <button class="search-clear" id="searchClear" title="Clear">✕</button>
+                </div>
+                <!-- search toggle icon button -->
+                <button class="search-toggle-btn" id="searchToggle" title="Search">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="7" />
+                        <line x1="17" y1="17" x2="22" y2="22" />
+                    </svg>
+                </button>
+            </div>
+
+            <a href="shopping-bag.html">
+                <button class="text-zinc-300 hover:text-white transition-colors active:scale-95">
+                    <span class="material-symbols-outlined">shopping_bag</span>
+                </button>
+            </a>
+            <button class="text-zinc-300 hover:text-white transition-colors active:scale-95">
+                <span class="material-symbols-outlined">person</span>
+            </button>
+        </div>
+    </nav>
+    <main class="pt-32">
+        <!-- Section 1: Hero -->
+        <section class="px-margin-edge mb-section-gap">
+            <div class="relative h-[870px] w-full overflow-hidden">
+                <div class="absolute inset-0 bg-black/40 z-10"></div>
+                <img alt="Architecture of Style" class="w-full h-full object-cover"
+                    data-alt="A moody, high-contrast photograph of a brutalist concrete building with sharp geometric shadows under a cold, overcast sky. The architectural precision of the structure reflects the brand's aesthetic of industrial luxury. The image is desaturated, focusing on deep blacks, cool grays, and harsh lighting to create an editorial fashion atmosphere."
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBv9eIUGTTo9BfjA7bogKLfb1sA9Sip-OOyvEqydFOycbiv1FExtE-7OmRr6V-NJn9qORvtLQRkuxNA7uT7I7wcM6kbBd3MWj8u-zkqN2ez1RD-WvghJcH-RqU5_0k_qKNji-ALQzh4VG2A9nZIRib50WNF2sYwDL4UYvWa7LngrlxTO5l1WqrhYeTU9bMWgaHhccU5rlshuUWCd2rSGuAp6PFq_9QovmkhLSh6DoACvig1xFtGp7tmcwLTd-EIuriw6XKALbyb69M" />
+                <div class="absolute inset-0 z-20 flex flex-col justify-end p-16">
+                    <h1 class="font-display-xl text-display-xl chrome-text uppercase tracking-tighter max-w-4xl">
+                        THE ARCHITECTURE OF STYLE
+                    </h1>
+                </div>
+            </div>
+        </section>
+        <!-- Section 2: Narrative -->
+        <section class="px-margin-edge mb-section-gap asymmetric-grid">
+            <div class="col-span-12 md:col-start-2 md:col-span-5">
+                <h2 class="font-headline-md text-headline-md mb-8 uppercase tracking-widest text-secondary">A Philosophy
+                    of Precision</h2>
+                <div class="space-y-6 font-body-lg text-on-surface-variant leading-relaxed">
+                    <p>
+                        AURELIA exists at the volatile intersection where cold industrial precision meets the delicate
+                        art of traditional tailoring. Our garments are not merely clothes; they are structural
+                        explorations designed for the modern architect of self.
+                    </p>
+                    <p>
+                        We strip away the superfluous, replacing traditional luxury cues with the raw honesty of brushed
+                        silver, surgical steel accents, and architectural textiles. Every seam is a calculated line;
+                        every silhouette is a deliberate shadow cast against the urban landscape.
+                    </p>
+                </div>
+            </div>
+            <div class="col-span-12 md:col-start-8 md:col-span-4 mt-12 md:mt-24">
+                <div class="border-l border-white/20 pl-8 py-4">
+                    <span class="font-label-sm text-label-sm uppercase tracking-widest text-outline block mb-4">Core
+                        Principles</span>
+                    <ul class="space-y-4 font-headline-md text-on-surface">
+                        <li class="opacity-50">Industrial Purity</li>
+                        <li class="opacity-70">Tailored Rigor</li>
+                        <li class="opacity-90">Chrome Accents</li>
+                        <li class="opacity-100">Eternal Black</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        <!-- Section 3: Craftsmanship Gallery -->
+        <section class="px-margin-edge mb-section-gap">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Large Image -->
+                <div class="md:col-span-2 group relative h-[600px] overflow-hidden">
+                    <img alt="Silver Weave"
+                        class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                        data-alt="Extreme close-up of a silver metallic fabric showing intricate industrial weaving patterns. The lighting is cold and clinical, highlighting the reflective properties of the silver threads against a dark charcoal background. The composition is sharp and high-fashion, emphasizing the technical craftsmanship of the material."
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLIh-hVk7y2ceA2YcerEoV6vNSPeRiEn8wEBSuZrUe5vTdV4P7W9P91Oh0cCDl8XOdXeqjNFQYHssK8n0WNxBU3YLcgoM7c6imUh70OncNrSdy6SEcMeY0I6rg4PdqBwkDaeSCjwfiG1o67IO_6zPATiiiHaG6-6wo2uGRVUVlM08Y8Z9HQlKtWg98drV2hgklvyy0wvWdu9BbViRTgdM0EVOeVkpqtFwzbLmsJIrdwuGOWgp8_Uttw0MbqGQZ286_KL3hd6TH5-U" />
+                    <div class="absolute bottom-8 left-8 p-4 bg-black/60 backdrop-blur-sm border border-white/10">
+                        <p class="font-label-sm text-white uppercase">Surgical Grade Silver Thread</p>
+                    </div>
+                </div>
+                <!-- Small Stacks -->
+                <div class="flex flex-col gap-6">
+                    <div class="h-[288px] overflow-hidden group">
+                        <img alt="Hand Stitching"
+                            class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                            data-alt="A detailed shot of a tailor's hand using a chrome needle to stitch deep black heavy wool. The skin is dimly lit, focusing on the precision of the hand-stitched detail. The aesthetic is monochromatic and moody, reflecting high-end garment construction in a minimalist studio environment."
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8fygggasQjHrN3Z1uRh5aYFHI4gVW_7dH4IZWrVpYVJ1XqCa--QTsWuUyMwAuuSuA0nKGpnsuvXK0_dmT1NH-wd9moquu725v_9agdxohevlA69XJ7eRcY1_8CPZkQk9gTuLYzAX_1onDc5lyKuZx35ZnFme9zGgnPyLA4-9PwrxcKCl6vV3ukqiA4FtgK4FCzMkAdCkOGAGRAWj4TcU_W0ZSsFqztQ3RQQ90Po66GHo951iu_KfnaepILver9-cF1qPgFQwCJhE" />
+                    </div>
+                    <div class="h-[288px] overflow-hidden group">
+                        <img alt="Chrome Hardware"
+                            class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                            data-alt="Minimalist abstract shot of chrome hardware, including a heavy industrial zipper and a polished silver brand tag. The elements are laid out on a dark gray slate surface with dramatic side-lighting that creates sharp, metallic glints. The mood is expensive, technical, and avant-garde."
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAV0xA3KzoboI3NZeMFuvQqQquAsD15sOaGnp0GOdyttSUMfh8srF_rHRMk1bagGultXlAs6sMMHA6ZMUUZzA5XI8CMy8gUMvbusU3LlABSbB0yWTzRGFLkw3Y4ZFCMWE_botHtB6omoh4yZ5902QfXN80WOegh0WiUQc618vPzyVlJ7YmTg1WD4nhqSJQ-vQPHcyx7lX2vB5vh4J--DeT1hh7SuAc4e0B5yfTbWqs_70AzqcKQnKLo7cQFuJfxCAdpWt7G-hyHuKM" />
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Section 4: The Quote -->
+        <section
+            class="px-margin-edge py-section-gap flex justify-center items-center text-center bg-surface-container-lowest relative overflow-hidden">
+            <div
+                class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent">
+            </div>
+            <div class="max-w-4xl px-8 z-10">
+                <span class="material-symbols-outlined text-6xl text-white/10 mb-8"
+                    data-icon="format_quote">format_quote</span>
+                <blockquote class="font-headline-lg text-headline-lg leading-snug italic mb-12 text-on-surface">
+                    "We do not design for the season; we design for the silhouette. Our goal is to create pieces that
+                    feel like physical armor for the intellectual mind, blending the cold strength of steel with the
+                    warmth of human craftsmanship."
+                </blockquote>
+                <cite class="font-label-sm text-label-sm uppercase tracking-[0.3em] text-white">— ELARA STERLING,
+                    CREATIVE DIRECTOR</cite>
+            </div>
+            <div
+                class="absolute bottom-0 right-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent">
+            </div>
+        </section>
+        <!-- CTA Section -->
+        <section class="px-margin-edge mb-section-gap text-center">
+            <div class="border border-white/10 p-24 bg-surface-container-low">
+                <h3 class="font-headline-md text-headline-md mb-8 uppercase tracking-widest">Experience the Collection
+                </h3>
+                <div class="flex flex-col md:flex-row gap-6 justify-center">
+                    <button
+                        class="bg-white text-black px-12 py-4 font-label-sm uppercase tracking-widest hover:bg-zinc-200 transition-colors">
+                        View Lookbook
+                    </button>
+                    <button
+                        class="border border-white/40 text-white px-12 py-4 font-label-sm uppercase tracking-widest hover:bg-white/10 transition-colors">
+                        Store Locator
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- Footer -->
+    <footer
+        class="w-full flex flex-col md:flex-row justify-between items-center px-16 py-20 gap-8 bg-black border-t border-zinc-900">
+        <div class="text-lg font-light tracking-[0.2em] text-zinc-200 font-serif">STERLING AVANT-GARDE</div>
+        <div class="flex gap-8">
+            <a class="font-serif text-[10px] tracking-[0.15em] uppercase text-zinc-600 hover:text-zinc-200 transition-colors duration-300"
+                href="#">Legal</a>
+            <a class="font-serif text-[10px] tracking-[0.15em] uppercase text-zinc-600 hover:text-zinc-200 transition-colors duration-300"
+                href="#">Privacy</a>
+            <a class="font-serif text-[10px] tracking-[0.15em] uppercase text-zinc-600 hover:text-zinc-200 transition-colors duration-300"
+                href="#">Sustainability</a>
+            <a class="font-serif text-[10px] tracking-[0.15em] uppercase text-zinc-600 hover:text-zinc-200 transition-colors duration-300"
+                href="#">Press</a>
+        </div>
+        <div class="font-serif text-[10px] tracking-[0.15em] uppercase text-zinc-400">
+            © 2024 STERLING AVANT-GARDE. ALL RIGHTS RESERVED.
+        </div>
+    </footer>
+</body>
+
+</html>

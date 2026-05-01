@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Manrope&family=Noto+Serif&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+
+<title>Shopping Bag</title>
+</head>
+
+<body class="bg-[#0a0a0a] text-white font-[Manrope]">
+
+<!-- NAV -->
+═════════════════════════════ -->
+    <nav
+        class="fixed top-0 w-full z-50 flex justify-between items-center px-16 h-20 bg-black/90 backdrop-blur-md border-b border-zinc-800">
+
+        <!-- Logo -->
+        <a href="home.html">
+            <div class="text-2xl font-light tracking-[0.2em] text-white uppercase"
+                style="font-family:'Noto Serif',serif;">AURELIA</div>
+        </a>
+
+        <!-- Nav links -->
+        <div class="hidden md:flex items-center gap-12">
+            <a class="uppercase text-xs tracking-widest text-zinc-500 hover:text-zinc-200 transition-colors"
+                style="font-family:'Manrope',sans-serif;" href="collection.html">Collections</a>
+            <a class="uppercase text-xs tracking-widest text-zinc-500 hover:text-zinc-200 transition-colors"
+                style="font-family:'Manrope',sans-serif;" href="accessories.html">Accessories</a>
+            <a class="uppercase text-xs tracking-widest text-zinc-500 hover:text-zinc-200 transition-colors"
+                style="font-family:'Manrope',sans-serif;" href="about.html">About</a>
+            <a class="uppercase text-xs tracking-widest text-zinc-500 hover:text-zinc-200 transition-colors"
+                style="font-family:'Manrope',sans-serif;" href="contact.html">Contact</a>
+        </div>
+
+        <!-- Right actions: search + icons -->
+        <div class="flex items-center gap-6">
+
+        
+            <a href="shopping-bag.html">
+                <button class="uppercase text-xs tracking-widest text-white border-b border-whit e pb-1">
+                    <span class="material-symbols-outlined">shopping_bag</span>
+                </button>
+            </a>
+            <button class="text-zinc-300 hover:text-white transition-colors active:scale-95">
+                <span class="material-symbols-outlined">person</span>
+            </button>
+        </div>
+    </nav>
+<!-- MAIN -->
+<main class="pt-32 px-10 max-w-6xl mx-auto">
+
+    <!-- TITLE -->
+    <h1 id="cartCount" class="text-3xl mb-10">Shopping Bag (0)</h1>
+
+    <div class="grid grid-cols-12 gap-10">
+
+        <!-- ITEMS -->
+        <div id="cartItems" class="col-span-8 space-y-8"></div>
+
+        <!-- SUMMARY -->
+        <div class="col-span-4 border border-zinc-700 p-6 h-fit">
+            <h2 class="text-xl mb-6">Summary</h2>
+
+            <div class="flex justify-between mb-4">
+                <span>Subtotal</span>
+                <span id="subtotal">$0</span>
+            </div>
+
+            <div class="flex justify-between mb-4">
+                <span>Shipping</span>
+                <span>Free</span>
+            </div>
+
+            <div class="flex justify-between border-t pt-4">
+                <span>Total</span>
+                <span id="total">$0</span>
+            </div>
+
+            <button class="w-full mt-6 bg-white text-black py-3">
+                CHECKOUT
+            </button>
+        </div>
+
+    </div>
+</main>
+
+<script>
+// ===== CART STORAGE =====
+function getCart() {
+    return JSON.parse(localStorage.getItem("cart")) || [];
+}
+
+function saveCart(cart) {
+    localStorage.setItem("cart", JSON.stringify(cart));
+}
+
+// ===== RENDER CART =====
+function renderCart() {
+    const cart = getCart();
+    const container = document.getElementById("cartItems");
+
+    let subtotal = 0;
+
+    // update count
+    document.getElementById("cartCount").innerText =
+        "Shopping Bag (" + cart.length + ")";
+
+    if (cart.length === 0) {
+        container.innerHTML = "<p>Your bag is empty</p>";
+        document.getElementById("subtotal").innerText = "$0";
+        document.getElementById("total").innerText = "$0";
+        return;
+    }
+
+    container.innerHTML = "";
+
+    cart.forEach((item, index) => {
+        subtotal += item.price * item.qty;
+
+        container.innerHTML += `
+        <div class="flex gap-6 border-b border-zinc-700 pb-6">
+
+            <img src="${item.image}" class="w-32 h-40 object-cover">
+
+            <div class="flex-1 flex flex-col justify-between">
+
+                <div class="flex justify-between">
+                    <h3>${item.name}</h3>
+                    <span>$${item.price}</span>
+                </div>
+
+                <div class="flex justify-between items-center mt-4">
+
+                    <div class="flex gap-4 border px-3 py-1">
+                        <button onclick="changeQty(${index}, -1)">-</button>
+                        <span>${item.qty}</span>
+                        <button onclick="changeQty(${index}, 1)">+</button>
+                    </div>
+
+                    <button onclick="removeItem(${index})" class="text-red-400">
+                        Remove
+                    </button>
+
+                </div>
+            </div>
+
+        </div>
+        `;
+    });
+
+    document.getElementById("subtotal").innerText = "$" + subtotal;
+    document.getElementById("total").innerText = "$" + subtotal;
+}
+
+// ===== CHANGE QTY =====
+function changeQty(index, change) {
+    let cart = getCart();
+
+    cart[index].qty += change;
+
+    if (cart[index].qty <= 0) {
+        cart.splice(index, 1);
+    }
+
+    saveCart(cart);
+    renderCart();
+}
+
+// ===== REMOVE =====
+function removeItem(index) {
+    let cart = getCart();
+    cart.splice(index, 1);
+    saveCart(cart);
+    renderCart();
+}
+
+// LOAD
+renderCart();
+</script>
+
+</body>
+</html>
